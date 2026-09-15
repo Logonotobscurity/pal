@@ -142,7 +142,7 @@ export default function CommandPage() {
           </div>
           <div>
             <p className="text-emerald-400">→ Requires approval (external write)</p>
-            <p className="text-emerald-400">→ All confidence > 90%</p>
+            <p className="text-emerald-400">→ All confidence &gt; 90%</p>
           </div>
         </div>
       </div>
