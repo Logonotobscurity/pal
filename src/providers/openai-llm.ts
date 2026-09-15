@@ -1,21 +1,28 @@
 /**
- * OpenAI LLM Provider — Semantic extraction and structured output
- * 
+ * OpenAI / OpenRouter LLM Provider — Semantic extraction and structured output
+ *
  * Implements PAL_ARCHITECTURE.md §19: Semantic Agent with LLM-based meaning extraction.
- * Uses OpenAI's structured outputs (JSON mode) for type-safe semantic analysis.
+ * Uses structured outputs (JSON mode) for type-safe semantic analysis.
+ *
+ * Supports both direct OpenAI and OpenRouter (OpenAI-compatible API).
+ * Set OPENROUTER_API_KEY + optional OPENROUTER_BASE_URL, or fall back to OPENAI_API_KEY.
  */
 
 import "server-only";
 import OpenAI from "openai";
 import type { SemanticIntentType } from "@/core/schemas/meaning-state";
 
-export type LLMProvider = "openai" | "anthropic" | "other";
+export type LLMProvider = "openai" | "openrouter" | "anthropic" | "other";
 
 export type LLMConfig = {
   apiKey: string;
   model: string;
+  /** OpenAI-compatible base URL. Use https://openrouter.ai/api/v1 for OpenRouter. */
+  baseURL?: string;
   temperature?: number;
   maxTokens?: number;
+  /** Optional headers (e.g. OpenRouter HTTP-Referer / X-Title) */
+  defaultHeaders?: Record<string, string>;
 };
 
 export type SemanticExtractionInput = {
@@ -60,8 +67,7 @@ export type SemanticExtractionOutput = {
 };
 
 /**
- * OpenAI-based semantic extractor
- * Uses GPT-4 with structured outputs for reliable meaning extraction
+ * OpenAI-compatible semantic extractor (works with OpenAI or OpenRouter).
  */
 export class OpenAISemanticExtractor {
   private readonly client: OpenAI;
@@ -70,9 +76,13 @@ export class OpenAISemanticExtractor {
   private readonly maxTokens: number;
 
   constructor(config: LLMConfig) {
-    this.client = new OpenAI({ apiKey: config.apiKey });
+    this.client = new OpenAI({
+      apiKey: config.apiKey,
+      baseURL: config.baseURL,
+      defaultHeaders: config.defaultHeaders,
+    });
     this.model = config.model;
-    this.temperature = config.temperature ?? 0.1; // Low temperature for structured extraction
+    this.temperature = config.temperature ?? 0.1;
     this.maxTokens = config.maxTokens ?? 2000;
   }
 
@@ -93,14 +103,14 @@ export class OpenAISemanticExtractor {
 
     const content = response.choices[0]?.message?.content;
     if (!content) {
-      throw new Error("OpenAI returned empty response");
+      throw new Error("LLM returned empty response");
     }
 
     try {
       const parsed = JSON.parse(content) as SemanticExtractionOutput;
       return this.validateAndNormalizeOutput(parsed);
     } catch (err) {
-      throw new Error(`Failed to parse OpenAI response: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(`Failed to parse LLM response: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -271,7 +281,6 @@ Output: {
   private validateAndNormalizeOutput(output: unknown): SemanticExtractionOutput {
     const data = output as SemanticExtractionOutput;
 
-    // Ensure all required fields exist with defaults
     return {
       intent: data.intent ?? { type: "other", summary: "Unknown intent", confidence: 0.3 },
       entities: data.entities ?? [],
@@ -286,8 +295,39 @@ Output: {
 }
 
 /**
- * Create a semantic extractor with the given configuration
+ * Create a semantic extractor.
+ * Prefer OpenRouter when OPENROUTER_API_KEY is set; otherwise fall back to OPENAI_API_KEY.
  */
 export function createSemanticExtractor(config: LLMConfig): OpenAISemanticExtractor {
   return new OpenAISemanticExtractor(config);
+}
+
+/**
+ * Helper to build LLMConfig from environment.
+ * OpenRouter takes precedence when OPENROUTER_API_KEY is present.
+ */
+export function llmConfigFromEnv(): LLMConfig {
+  const openRouterKey = process.env.OPENROUTER_API_KEY;
+  const openAiKey = process.env.OPENAI_API_KEY;
+
+  if (openRouterKey) {
+    return {
+      apiKey: openRouterKey,
+      baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+      model: process.env.OPENAI_MODEL ?? "openai/gpt-4o-mini",
+      defaultHeaders: {
+        "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER ?? "https://github.com/Logonotobscurity/pal",
+        "X-Title": process.env.OPENROUTER_X_TITLE ?? "PAL – Meaning-to-Action",
+      },
+    };
+  }
+
+  if (!openAiKey) {
+    throw new Error("Neither OPENROUTER_API_KEY nor OPENAI_API_KEY is set");
+  }
+
+  return {
+    apiKey: openAiKey,
+    model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+  };
 }
