@@ -7,7 +7,14 @@ safe, reviewable workflows.
 > Speak naturally. PAL understands the meaning, builds the work, and asks
 > before it acts.
 
-Built for the Sahara CodeSwitch Africa challenge.
+Built for the **Sahara CodeSwitch Africa Challenge** (submission: 15 Sep 2026).
+
+## Challenge submission (start here)
+
+**Full package:** [`SUBMISSION.md`](./SUBMISSION.md)  
+**Repo:** https://github.com/Logonotobscurity/pal  
+**Submit form:** https://forms.gle/RV43DXHAJCTYr98U7  
+**Challenge site:** https://www.intron.io/compete/
 
 ## Source of truth
 
@@ -15,12 +22,12 @@ Built for the Sahara CodeSwitch Africa challenge.
 - `docs/PAL_ARCHITECTURE.md` — architecture specification (v2.0)
 - `docs/PAL_DOMAIN_MODEL.md`, `docs/PAL_EXECUTION_PLAN.md`,
   `docs/PAL_BENCHMARK.md`, `docs/PAL_SECURITY.md`
+- `SUBMISSION.md` — challenge deliverables package
 
 ## Stack
 
 Next.js 16 (App Router) · React 19 · TypeScript (strict) · Tailwind CSS 4 ·
-Zod · Vitest · ESLint. Supabase arrives with the tenancy task; Sahara with
-the voice task.
+Zod · Vitest · ESLint · Supabase · Sahara voice · OpenAI / OpenRouter
 
 ## Commands
 
@@ -36,102 +43,53 @@ npm test           # vitest run
 ## Safety invariant
 
 Agents propose. Policy decides. Owner approves. Executor acts. Verifier
-confirms. No LLM may directly execute an external side effect.
+confirms. **No LLM may directly execute an external side effect.**
 
 ---
 
 ## Sahara CodeSwitch Africa Challenge
 
-**Challenge**: [Sahara CodeSwitch Africa Challenge](https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/)  
-**Status**: Phase 3 Complete - Full pipeline operational (139/139 tests passing)
+**Status:** Pipeline operational (voice → meaning → plan → policy → approval → execution → verification)  
+**Category:** Fintech / Telco / CX (SME ops)
 
-### Challenge Datasets
+### Datasets (official)
 
-PAL is evaluated on:
+- [intronhealth/AfriSwitch](https://huggingface.co/datasets/intronhealth/AfriSwitch)
+- [intronhealth/AfriSwitchCare](https://huggingface.co/datasets/intronhealth/AfriSwitchCare)
+- [intronhealth/NigBench-MAMAI-Speech-QA](https://huggingface.co/datasets/intronhealth/NigBench-MAMAI-Speech-QA)
 
-- **[AfriSwitch](https://huggingface.co/datasets/Swalah/AfriSwitch)** — Code-switched conversational speech (6 African language pairs)
-- **[AfriSwitchCare](https://huggingface.co/datasets/Swalah/AfriSwitchCare)** — Healthcare domain conversations with code-switching
+### Evaluation approach
 
-Both datasets are gated on Hugging Face. Accept conditions to access.
+Thesis: **Speech quality determines action quality.**
 
-### Evaluation Approach
+1. Transcription (WER, code-switch detection)
+2. Critical field extraction (name, amount, date)
+3. Semantic understanding (intent, entities)
+4. Action quality (correct constrained workflows)
+5. Safety (approval gate, provenance, zero unsupervised side effects)
 
-PAL's thesis: **Speech quality determines action quality.**
+Methodology: `docs/PAL_BENCHMARK.md`  
+Results table template: `SUBMISSION.md` §4
 
-We measure 5 tiers beyond transcription:
+### Model comparison (required ≥3 including Sahara)
 
-1. **Transcription**: WER, code-switch detection (baseline)
-2. **Information Extraction**: Critical field recall/precision
-3. **Semantic Understanding**: Intent accuracy, entity F1
-4. **Action Quality**: Correct workflows generated
-5. **Safety**: Critical field blocking, provenance coverage
-
-See `docs/PAL_BENCHMARK.md` for complete methodology.
-
-### Model Comparison
-
-PAL benchmarks **Sahara v2.5** against ≥2 other models:
-- OpenAI Whisper Large-v3
-- AssemblyAI
-
-Results measure full pipeline quality, not just ASR accuracy.
-
-### Current Implementation
-
-```
-✅ Phase 1: Voice Ingestion (Sahara WebSocket integration)
-✅ Phase 2: Semantic Agent (intent + entity extraction)
-✅ Phase 3: Full Integration (workflow → policy → approval → execution → verification)
-🔄 Phase 4: Benchmark evaluation (in progress)
-```
-
-### Quick Start
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Configure environment
-cp .env.example .env.local
-# Add: SAHARA_API_SECRET, OPENAI_API_KEY, HUGGINGFACE_TOKEN
-
-# 3. Accept dataset conditions
-# Visit: https://huggingface.co/datasets/Swalah/AfriSwitch
-# Visit: https://huggingface.co/datasets/Swalah/AfriSwitchCare
-
-# 4. Run benchmarks
-npm run benchmark
-
-# 5. View results
-cat benchmarks/reports/comparison.md
-```
-
-### Documentation
-
-- **Architecture**: `docs/PAL_ARCHITECTURE.md` — Complete system design
-- **Benchmark**: `docs/PAL_BENCHMARK.md` — Evaluation methodology
-- **Execution Plan**: `docs/PAL_EXECUTION_PLAN.md` — Implementation status
-- **Security**: `docs/PAL_SECURITY.md` — Security considerations
+| Model | Role |
+|--------|------|
+| Intron Sahara API | Primary code-switch STT |
+| Whisper (e.g. large-v3 / medium) | Global baseline |
+| AfriSpeech-Whisper or AssemblyAI / other | Third system |
 
 ### Responsible AI
 
-- ✅ Speaker consent (all datasets)
-- ✅ PII protection (redaction + anonymization)
-- ✅ Bias evaluation (all language pairs)
-- ✅ Safety-first (critical field blocking)
-- ✅ Human-in-loop (approval gates for consequential actions)
+See **SUBMISSION.md §5**. Summary: dataset consent terms; RLS tenancy; human approval for consequential actions; provenance chain; not for unsupervised high-risk automation.
 
-**Limitations**: Best performance on English-Swahili; degrades in high-noise; single-turn conversations.
+### Deliverables checklist
 
-**Intended Use**: Business automation, healthcare transcription with human review.
-
-### Deliverables
-
-- [x] Source code (public GitHub)
-- [x] Documentation (architecture + benchmark)
-- [ ] Benchmark results (Sahara vs ≥2 models)
-- [ ] Working prototype video
-- [ ] Responsible AI statement
-- [ ] Challenge submission
+- [x] Source code (this repo)
+- [x] Documentation (architecture + benchmark + SUBMISSION.md)
+- [x] Responsible AI statement (SUBMISSION.md)
+- [ ] Benchmark numeric table (fill §4 before/with submit)
+- [ ] Short prototype video
+- [ ] Form submission (https://forms.gle/RV43DXHAJCTYr98U7)
 
 ---
