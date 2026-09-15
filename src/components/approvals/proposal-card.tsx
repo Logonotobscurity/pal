@@ -1,8 +1,10 @@
 /**
  * Proposal Card Component
- * 
- * Displays a single ActionProposal with approve/reject actions
- * Implements PAL_ARCHITECTURE.md §29: Approval UI mockup
+ *
+ * Displays a single ActionProposal with approve/reject actions.
+ * Implements PAL_ARCHITECTURE.md §29: Approval UI.
+ *
+ * Copy centers the ASK concept: PAL proposes and asks; the owner decides.
  */
 
 "use client";
@@ -47,7 +49,6 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
     }
   };
 
-  // Format timestamp
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleString("en-US", {
@@ -58,11 +59,31 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
     });
   };
 
-  // Get status badge color
+  const getStatusLabel = (status: ActionProposal["status"]) => {
+    switch (status) {
+      case "pending":
+        return "PAL is asking";
+      case "approved":
+        return "Approved";
+      case "rejected":
+        return "Rejected";
+      case "expired":
+        return "Expired";
+      case "executed":
+        return "Executed";
+      case "failed":
+        return "Failed";
+      case "edited":
+        return "Edited";
+      default:
+        return status;
+    }
+  };
+
   const getStatusColor = (status: ActionProposal["status"]) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-950/30 text-yellow-400 border-yellow-900/50";
+        return "bg-emerald-950/30 text-emerald-400 border-emerald-900/50";
       case "approved":
         return "bg-green-950/30 text-green-400 border-green-900/50";
       case "rejected":
@@ -74,7 +95,6 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
     }
   };
 
-  // Get risk badge color
   const getRiskColor = (riskClass: ActionProposal["riskClass"]) => {
     switch (riskClass) {
       case "read":
@@ -96,22 +116,21 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
   const isExpired = proposal.expiresAt && new Date(proposal.expiresAt) < new Date();
 
   return (
-    <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
+    <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
       {/* Header */}
-      <div className="mb-4 flex items-start justify-between">
+      <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-medium text-neutral-100">
-            {proposal.actionType}
-          </h3>
-          <p className="mt-1 text-sm text-neutral-400">
-            {formatTime(proposal.createdAt)}
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+            {isPending ? "PAL is asking for your approval" : "Proposal"}
           </p>
+          <h3 className="mt-1 text-lg font-medium text-neutral-100">{proposal.actionType}</h3>
+          <p className="mt-1 text-sm text-neutral-400">{formatTime(proposal.createdAt)}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 flex-wrap justify-end gap-2">
           <span
             className={`rounded-md border px-2 py-1 text-xs font-medium ${getStatusColor(proposal.status)}`}
           >
-            {proposal.status}
+            {getStatusLabel(proposal.status)}
           </span>
           <span
             className={`rounded-md border px-2 py-1 text-xs font-medium ${getRiskColor(proposal.riskClass)}`}
@@ -125,27 +144,21 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
       <div className="space-y-3 border-t border-neutral-800 pt-4">
         {proposal.recipient && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-              Recipient
-            </p>
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Recipient</p>
             <p className="mt-1 text-sm text-neutral-200">{proposal.recipient}</p>
           </div>
         )}
 
         {proposal.destination && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-              Destination
-            </p>
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Destination</p>
             <p className="mt-1 text-sm text-neutral-200">{proposal.destination}</p>
           </div>
         )}
 
         {proposal.scheduledFor && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-              Schedule
-            </p>
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">Schedule</p>
             <p className="mt-1 text-sm text-neutral-200">{proposal.scheduledFor}</p>
           </div>
         )}
@@ -153,28 +166,29 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
         {proposal.policyDecision && (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-              Policy Reason
+              Why PAL is asking
             </p>
             <p className="mt-1 text-sm text-neutral-300">{proposal.policyDecision.reason}</p>
           </div>
         )}
 
-        {proposal.exactPayload !== null && proposal.exactPayload !== undefined && typeof proposal.exactPayload === "object" ? (
+        {proposal.exactPayload !== null &&
+        proposal.exactPayload !== undefined &&
+        typeof proposal.exactPayload === "object" ? (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-              Exact Payload
+              Exact action (what will run if you approve)
             </p>
-            <pre className="mt-1 max-h-40 overflow-auto rounded bg-neutral-950 p-3 text-xs text-neutral-300">
+            <pre className="mt-1 max-h-40 overflow-auto rounded-lg bg-neutral-950 p-3 text-xs text-neutral-300">
               {JSON.stringify(proposal.exactPayload, null, 2)}
             </pre>
           </div>
         ) : null}
 
-        {/* Evidence References */}
         {proposal.evidenceRefs && proposal.evidenceRefs.length > 0 && (
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
-              Source Evidence
+              Source evidence
             </p>
             <div className="mt-2 space-y-1">
               {proposal.evidenceRefs.map((ref, idx) => (
@@ -190,33 +204,33 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
 
         {isExpired && (
           <div className="rounded-md border border-red-900/50 bg-red-950/20 px-3 py-2 text-xs text-red-400">
-            This proposal has expired
+            This request has expired. PAL will not act on it.
           </div>
         )}
       </div>
 
       {/* Actions */}
       {isPending && !isExpired && (
-        <div className="mt-6 flex gap-3 border-t border-neutral-800 pt-4">
+        <div className="mt-6 flex flex-wrap gap-3 border-t border-neutral-800 pt-4">
           <button
             onClick={() => setShowRejectDialog(true)}
             disabled={isSubmitting}
-            className="rounded-md border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-red-700 hover:text-red-400 disabled:opacity-50"
+            className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-red-700 hover:text-red-400 disabled:opacity-50"
           >
-            Reject
+            No, reject
           </button>
           <a
             href={`/approvals/${proposal.id}/edit`}
-            className="rounded-md border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-neutral-500 hover:text-neutral-100"
+            className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-neutral-500 hover:text-neutral-100"
           >
-            Edit
+            Edit first
           </a>
           <button
             onClick={handleApprove}
             disabled={isSubmitting}
-            className="ml-auto rounded-md bg-green-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-green-500 disabled:opacity-50"
+            className="ml-auto rounded-lg bg-emerald-600 px-6 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:opacity-50"
           >
-            {isSubmitting ? "Approving..." : "Approve"}
+            {isSubmitting ? "Approving…" : "Yes, do this"}
           </button>
         </div>
       )}
@@ -224,16 +238,16 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
       {/* Reject Dialog */}
       {showRejectDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
-          <div className="w-full max-w-md rounded-lg border border-neutral-800 bg-neutral-900 p-6">
-            <h3 className="text-lg font-medium text-neutral-100">Reject Proposal</h3>
+          <div className="w-full max-w-md rounded-xl border border-neutral-800 bg-neutral-900 p-6">
+            <h3 className="text-lg font-medium text-neutral-100">Reject this request</h3>
             <p className="mt-2 text-sm text-neutral-400">
-              Please provide a reason for rejecting this action.
+              Tell PAL why this action should not run. Your reason is recorded for the audit trail.
             </p>
             <textarea
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
-              placeholder="Enter rejection reason..."
-              className="mt-4 w-full rounded-md border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
+              placeholder="Reason for rejection…"
+              className="mt-4 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-3 py-2 text-sm text-neutral-100 placeholder-neutral-600 focus:border-neutral-500 focus:outline-none"
               rows={4}
             />
             <div className="mt-6 flex justify-end gap-3">
@@ -243,16 +257,16 @@ export function ProposalCard({ proposal, onApprove, onReject }: ProposalCardProp
                   setRejectReason("");
                 }}
                 disabled={isSubmitting}
-                className="rounded-md border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-neutral-500 hover:text-neutral-100 disabled:opacity-50"
+                className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-neutral-500 hover:text-neutral-100 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleReject}
                 disabled={isSubmitting || !rejectReason.trim()}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50"
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 disabled:opacity-50"
               >
-                {isSubmitting ? "Rejecting..." : "Reject"}
+                {isSubmitting ? "Rejecting…" : "Reject"}
               </button>
             </div>
           </div>
