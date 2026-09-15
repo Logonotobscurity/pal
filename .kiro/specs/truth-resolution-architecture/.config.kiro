@@ -1,0 +1,7 @@
+{
+  "specType": "feature",
+  "workflowType": "design-first",
+  "featureName": "truth-resolution-architecture",
+  "createdAt": "2026-09-15T20:15:00Z",
+  "designArtifacts": ["high-level", "low-level"]
+}
