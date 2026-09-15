@@ -10,7 +10,12 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "benchmark:setup": "cd scripts/benchmark && pip install -r requirements.txt",
+    "benchmark:load": "cd scripts/benchmark && python load-dataset.py",
+    "benchmark:eval": "tsx scripts/benchmark/evaluate-pipeline.ts",
+    "benchmark:quick": "tsx scripts/benchmark/evaluate-pipeline.ts benchmarks/datasets/afriswitch_care_test.json sahara-v2.5 bench-workspace 10",
+    "benchmark": "npm run benchmark:load && npm run benchmark:eval"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",
@@ -32,6 +37,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.13",
     "typescript": "5.9.3",
     "vitest": "5.0.0"
   },

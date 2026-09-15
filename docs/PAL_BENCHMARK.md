@@ -40,33 +40,11 @@ Traditional benchmarks stop at transcription. PAL measures whether the **right a
 
 ---
 
-## Primary Datasets
+## Primary Dataset
 
-### 1. AfriSwitch (Conversational Code-Switching)
+### AfriSwitchCare (Healthcare Domain)
 
-**Source**: [Hugging Face - Swalah/AfriSwitch](https://huggingface.co/datasets/Swalah/AfriSwitch)  
-**Access**: Gated (accept conditions on HF)  
-**Description**: African code-switched conversational speech across multiple language pairs
-
-**Language Pairs**:
-- English-Swahili
-- English-Hausa
-- English-Yoruba
-- English-Zulu
-- English-Igbo
-- English-Amharic
-
-**Use Case**: General conversational understanding, code-switch detection, natural language flow
-
-**Key Metrics**:
-- Word Error Rate (WER)
-- Code-switch detection accuracy
-- Language identification accuracy
-- Transcription quality per language pair
-
-### 2. AfriSwitchCare (Healthcare Domain)
-
-**Source**: [Hugging Face - Swalah/AfriSwitchCare](https://huggingface.co/datasets/Swalah/AfriSwitchCare)  
+**Source**: [Hugging Face - intronhealth/AfriSwitchCare](https://huggingface.co/datasets/intronhealth/AfriSwitchCare)  
 **Access**: Gated (accept conditions on HF)  
 **Description**: Clinical conversations with code-switching, medical terminology, and privacy-sensitive content
 
@@ -84,6 +62,16 @@ Traditional benchmarks stop at transcription. PAL measures whether the **right a
 - Critical field confidence scores
 - Safety blocking rate (when uncertain)
 - Action proposal correctness
+
+**Why AfriSwitchCare?**
+
+AfriSwitchCare is the ideal dataset for evaluating PAL because:
+
+1. **High-stakes domain**: Healthcare requires precision - errors have real consequences
+2. **Code-switching patterns**: Matches PAL's target use case (African multilingual business contexts)
+3. **Critical field extraction**: Tests PAL's core value proposition (safe extraction of business-critical data)
+4. **Policy enforcement testing**: Medical decisions map directly to PAL's approval gates
+5. **Sahara Challenge alignment**: Demonstrates practical value of superior code-switch handling
 
 ---
 
@@ -158,14 +146,13 @@ PAL must fail safely:
 ```python
 from datasets import load_dataset
 
-# Load datasets (requires HF authentication)
-afriswitch = load_dataset("Swalah/AfriSwitch", use_auth_token=True)
-afriswitch_care = load_dataset("Swalah/AfriSwitchCare", use_auth_token=True)
+# Load AfriSwitchCare dataset (requires HF authentication)
+afriswitch_care = load_dataset("intronhealth/AfriSwitchCare", use_auth_token=True)
 
 # Split strategy: speaker-disjoint train/test
 # Never allow same speaker in both sets (prevents memorization)
-train_speakers = set(afriswitch['train']['speaker_id'])
-test_speakers = set(afriswitch['test']['speaker_id'])
+train_speakers = set(afriswitch_care['train']['speaker_id'])
+test_speakers = set(afriswitch_care['test']['speaker_id'])
 assert train_speakers.isdisjoint(test_speakers), "Speaker leakage detected!"
 
 # Create PAL evaluation format
@@ -178,9 +165,10 @@ def format_for_pal(example):
         "critical_fields": extract_critical_fields(example),
         "expected_intent": example.get("intent"),
         "expected_action": example.get("action"),
+        "domain": "healthcare"
     }
 
-eval_set = afriswitch['test'].map(format_for_pal)
+eval_set = afriswitch_care['test'].map(format_for_pal)
 ```
 
 ### Phase 2: Model Comparison
@@ -303,8 +291,14 @@ async def evaluate_pal_pipeline(audio_sample, model_config):
 
 ### Phase 4: Healthcare-Specific Evaluation (AfriSwitchCare)
 
+AfriSwitchCare is our primary evaluation dataset, chosen for its:
+- **High-stakes domain**: Healthcare errors have real consequences
+- **Rich code-switching**: Natural multilingual doctor-patient conversations
+- **Critical field requirements**: Names, medications, dosages, dates must be exact
+- **Policy enforcement testing**: Maps directly to PAL's approval gates
+
 ```python
-# Healthcare domain requires special considerations
+# Healthcare domain evaluation with PAL pipeline
 healthcare_eval = evaluate_pal_pipeline(
     afriswitch_care['test'],
     model_config,
@@ -317,8 +311,22 @@ healthcare_metrics = {
     "pii_handling": check_pii_redaction(healthcare_eval),
     "safety_blocking_rate": compute_safety_blocks(healthcare_eval),
     "symptom_extraction_accuracy": evaluate_symptoms(healthcare_eval),
+    "medication_accuracy": evaluate_medications(healthcare_eval),
+    "date_time_precision": evaluate_temporal_entities(healthcare_eval),
 }
+
+print("AfriSwitchCare Healthcare Evaluation")
+print(f"  Medical Entity F1: {healthcare_metrics['medical_entity_f1']:.1%}")
+print(f"  Safety Blocking Rate: {healthcare_metrics['safety_blocking_rate']:.1%}")
+print(f"  Medication Accuracy: {healthcare_metrics['medication_accuracy']:.1%}")
 ```
+
+**Key Healthcare Insights**:
+
+1. **Code-switch impact on medical terms**: How does language mixing affect medication/symptom extraction?
+2. **Critical field blocking effectiveness**: Does PAL catch low-confidence medical data?
+3. **Approval routing for medical decisions**: Are high-risk actions properly flagged?
+4. **Evidence chain completeness**: Can we trace every medical decision back to utterance?
 
 ---
 
@@ -340,8 +348,7 @@ cp .env.example .env.local
 # - HUGGINGFACE_TOKEN (for dataset access)
 
 # 3. Accept dataset conditions on Hugging Face
-# Visit: https://huggingface.co/datasets/Swalah/AfriSwitch
-# Visit: https://huggingface.co/datasets/Swalah/AfriSwitchCare
+# Visit: https://huggingface.co/datasets/intronhealth/AfriSwitchCare
 # Click "Access repository" and accept terms
 
 # 4. Install Python dependencies (for dataset loading)
@@ -351,20 +358,20 @@ pip install datasets huggingface_hub jiwer
 ### Running Benchmarks
 
 ```bash
-# Full benchmark suite (all models, all metrics)
-npm run benchmark
+# Install Python dependencies for dataset loading
+npm run benchmark:setup
 
-# Specific model only
-npm run benchmark -- --model=sahara
+# Load and prepare AfriSwitchCare dataset
+npm run benchmark:load
 
-# Specific dataset only
-npm run benchmark -- --dataset=afriswitch
+# Run full PAL pipeline evaluation
+npm run benchmark:eval
 
-# Quick smoke test (10 samples)
+# Quick smoke test (10 samples only)
 npm run benchmark:quick
 
-# Generate comparison report
-npm run benchmark:report
+# Complete benchmark (load + evaluate)
+npm run benchmark
 ```
 
 ### Expected Output
@@ -374,33 +381,34 @@ PAL Benchmark Results
 =====================
 
 Model: Sahara v2.5
-Dataset: AfriSwitch (n=500)
+Dataset: AfriSwitchCare (n=200)
 
 Tier 1: Transcription
-  WER: 12.3% ✓
-  Code-Switch Detection: 94.2% ✓
-  Language Pair F1: 89.1% ✓
+  WER: 13.8% ✓
+  Code-Switch Detection: 93.5% ✓
+  Language Pair F1: 91.2% ✓
 
-Tier 2: Information Extraction
-  Critical Field Recall: 91.5% ✓
-  Critical Field Precision: 96.8% ✓
-  Entity F1: 87.3% ✓
+Tier 2: Information Extraction (Healthcare)
+  Critical Field Recall: 92.1% ✓
+  Critical Field Precision: 97.2% ✓
+  Medical Entity F1: 88.4% ✓
 
 Tier 3: Semantic Understanding
-  Intent Accuracy: 86.4% ✓
-  Constraint Detection: 82.1% ✓
-  Ambiguity Detection: 73.5% ✓
+  Intent Accuracy: 87.8% ✓
+  Constraint Detection: 84.3% ✓
+  Ambiguity Detection: 76.1% ✓
 
 Tier 4: Action Quality
-  Action Validity: 92.1% ✓
-  Action Correctness: 81.7% ✓
-  Approval Accuracy: 97.2% ✓
+  Action Validity: 93.4% ✓
+  Action Correctness: 83.9% ✓
+  Approval Accuracy: 98.1% ✓
 
-Tier 5: Safety
+Tier 5: Safety (Critical for Healthcare)
   Critical Field Blocking: 100.0% ✓
-  Provenance Coverage: 96.4% ✓
+  Provenance Coverage: 97.8% ✓
+  No False Approvals: 100.0% ✓
 
-Overall: 88.4% (PASS)
+Overall PAL Score: 90.2% (PASS)
 ```
 
 ---
@@ -427,9 +435,9 @@ For Sahara Challenge submission, provide comparison table:
 ```
 benchmarks/
 ├── runs/
-│   ├── 2026-09-15_sahara_afriswitch.json
-│   ├── 2026-09-15_whisper_afriswitch.json
-│   └── 2026-09-15_assemblyai_afriswitch.json
+│   ├── 2026-09-15_sahara_afriswitch_care.json
+│   ├── 2026-09-15_whisper_afriswitch_care.json
+│   └── 2026-09-15_assemblyai_afriswitch_care.json
 │
 ├── reports/
 │   ├── comparison_2026-09-15.md
@@ -439,8 +447,7 @@ benchmarks/
 │   └── challenge_submission.pdf
 │
 └── datasets/
-    ├── afriswitch_processed/
-    └── afriswitch_care_processed/
+    └── afriswitch_care_test.json
 ```
 
 ### Regression Detection
@@ -511,8 +518,7 @@ For [Sahara CodeSwitch Africa Challenge](https://www.intron.io/sahara-v2-5/sahar
 ## References
 
 - [Sahara CodeSwitch Africa Challenge](https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/)
-- [AfriSwitch Dataset](https://huggingface.co/datasets/Swalah/AfriSwitch)
-- [AfriSwitchCare Dataset](https://huggingface.co/datasets/Swalah/AfriSwitchCare)
+- [AfriSwitchCare Dataset](https://huggingface.co/datasets/intronhealth/AfriSwitchCare)
 - PAL Architecture: `docs/PAL_ARCHITECTURE.md`
 - PAL Execution Plan: `docs/PAL_EXECUTION_PLAN.md`
 
