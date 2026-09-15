@@ -43,7 +43,7 @@ export async function registerAction(
     return { requiresConfirmation: true };
   }
 
-  redirect("/");
+  redirect("/approvals");
 }
 
 export async function loginAction(
@@ -69,7 +69,7 @@ export async function loginAction(
     return { error: "Invalid email or password" };
   }
 
-  redirect("/");
+  redirect("/approvals");
 }
 
 export async function logoutAction(): Promise<void> {
