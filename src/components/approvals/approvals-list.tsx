@@ -1,8 +1,10 @@
 /**
  * Approvals List Component
- * 
- * Client component that fetches and displays proposals requiring approval
- * Implements PAL_ARCHITECTURE.md §59: Approvals view
+ *
+ * Client component that fetches and displays proposals requiring approval.
+ * Implements PAL_ARCHITECTURE.md §59: Approvals view.
+ *
+ * Copy centers the ASK concept: PAL asks; the owner decides.
  */
 
 "use client";
@@ -54,7 +56,6 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
 
     loadProposals();
 
-    // Poll for updates every 5 seconds
     const interval = setInterval(() => {
       if (!cancelled) {
         loadProposals();
@@ -105,7 +106,6 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         throw new Error(error.error || "Failed to approve");
       }
 
-      // Refresh list
       await fetchProposals();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to approve proposal");
@@ -128,7 +128,6 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         throw new Error(error.error || "Failed to reject");
       }
 
-      // Refresh list
       await fetchProposals();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to reject proposal");
@@ -138,7 +137,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
   if (loading && proposals.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-neutral-400">Loading proposals...</p>
+        <p className="text-sm text-neutral-400">Checking what PAL is asking…</p>
       </div>
     );
   }
@@ -146,7 +145,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
   if (error) {
     return (
       <div className="rounded-md border border-red-900/50 bg-red-950/20 px-4 py-3 text-sm text-red-400">
-        <p>Error loading proposals: {error}</p>
+        <p>Could not load requests: {error}</p>
       </div>
     );
   }
@@ -154,20 +153,20 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
   return (
     <div className="space-y-6">
       {/* Filters */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setFilter("pending")}
-          className={`rounded-md px-3 py-1.5 text-sm transition ${
+          className={`rounded-lg px-3 py-1.5 text-sm transition ${
             filter === "pending"
-              ? "bg-neutral-800 text-neutral-100"
+              ? "bg-emerald-950/50 text-emerald-300"
               : "text-neutral-400 hover:text-neutral-200"
           }`}
         >
-          Pending
+          Asking
         </button>
         <button
           onClick={() => setFilter("approved")}
-          className={`rounded-md px-3 py-1.5 text-sm transition ${
+          className={`rounded-lg px-3 py-1.5 text-sm transition ${
             filter === "approved"
               ? "bg-neutral-800 text-neutral-100"
               : "text-neutral-400 hover:text-neutral-200"
@@ -177,7 +176,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         </button>
         <button
           onClick={() => setFilter("rejected")}
-          className={`rounded-md px-3 py-1.5 text-sm transition ${
+          className={`rounded-lg px-3 py-1.5 text-sm transition ${
             filter === "rejected"
               ? "bg-neutral-800 text-neutral-100"
               : "text-neutral-400 hover:text-neutral-200"
@@ -187,7 +186,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         </button>
         <button
           onClick={() => setFilter("all")}
-          className={`rounded-md px-3 py-1.5 text-sm transition ${
+          className={`rounded-lg px-3 py-1.5 text-sm transition ${
             filter === "all"
               ? "bg-neutral-800 text-neutral-100"
               : "text-neutral-400 hover:text-neutral-200"
@@ -197,14 +196,20 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         </button>
       </div>
 
-      {/* Proposals */}
       {proposals.length === 0 ? (
-        <div className="rounded-md border border-neutral-800 px-6 py-12 text-center">
-          <p className="text-sm text-neutral-400">
+        <div className="rounded-xl border border-neutral-800 px-6 py-12 text-center">
+          <p className="text-sm text-neutral-300">
             {filter === "pending"
-              ? "No pending proposals"
-              : `No ${filter} proposals`}
+              ? "Nothing needs your decision right now."
+              : filter === "all"
+                ? "No proposals yet."
+                : `No ${filter} proposals.`}
           </p>
+          {filter === "pending" && (
+            <p className="mt-2 text-xs text-neutral-500">
+              When PAL understands a request that needs approval, it will appear here.
+            </p>
+          )}
         </div>
       ) : (
         <div className="space-y-4">
