@@ -1,8 +1,10 @@
 /**
- * OpenAI Workflow LLM Provider — MeaningState → ActionPlan transformation
- * 
+ * OpenAI / OpenRouter Workflow LLM Provider — MeaningState → ActionPlan
+ *
  * Implements PAL_ARCHITECTURE.md §20-21: Workflow Agent with constrained WorkflowIR generation.
- * Uses OpenAI's structured outputs for type-safe workflow planning.
+ * Uses structured outputs for type-safe workflow planning.
+ *
+ * Supports both direct OpenAI and OpenRouter (OpenAI-compatible API).
  */
 
 import "server-only";
@@ -15,8 +17,11 @@ import type { Capability } from "@/core/capabilities/registry";
 export type WorkflowLLMConfig = {
   apiKey: string;
   model: string;
+  /** OpenAI-compatible base URL. Use https://openrouter.ai/api/v1 for OpenRouter. */
+  baseURL?: string;
   temperature?: number;
   maxTokens?: number;
+  defaultHeaders?: Record<string, string>;
 };
 
 export type WorkflowGenerationInput = {
@@ -34,8 +39,7 @@ export type WorkflowGenerationOutput = {
 };
 
 /**
- * OpenAI-based workflow generator
- * Uses GPT-4 with structured outputs for reliable workflow planning
+ * OpenAI-compatible workflow generator (works with OpenAI or OpenRouter).
  */
 export class OpenAIWorkflowGenerator {
   private readonly client: OpenAI;
@@ -44,9 +48,13 @@ export class OpenAIWorkflowGenerator {
   private readonly maxTokens: number;
 
   constructor(config: WorkflowLLMConfig) {
-    this.client = new OpenAI({ apiKey: config.apiKey });
+    this.client = new OpenAI({
+      apiKey: config.apiKey,
+      baseURL: config.baseURL,
+      defaultHeaders: config.defaultHeaders,
+    });
     this.model = config.model;
-    this.temperature = config.temperature ?? 0.2; // Low temperature for structured planning
+    this.temperature = config.temperature ?? 0.2;
     this.maxTokens = config.maxTokens ?? 3000;
   }
 
@@ -67,14 +75,14 @@ export class OpenAIWorkflowGenerator {
 
     const content = response.choices[0]?.message?.content;
     if (!content) {
-      throw new Error("OpenAI returned empty response");
+      throw new Error("LLM returned empty response");
     }
 
     try {
       const parsed = JSON.parse(content) as WorkflowGenerationOutput;
       return this.validateAndNormalizeOutput(parsed);
     } catch (err) {
-      throw new Error(`Failed to parse OpenAI workflow response: ${err instanceof Error ? err.message : String(err)}`);
+      throw new Error(`Failed to parse workflow response: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -150,80 +158,6 @@ OUTPUT FORMAT (JSON):
   "rationaleSummary": "Brief explanation of the workflow plan (max 1000 chars)"
 }
 
-EXAMPLES:
-
-Input: User wants to send payment reminder to Ngozi for ₦85,000 due tomorrow
-Output: {
-  "workflowIR": {
-    "version": "1.0",
-    "nodes": [
-      { "id": "trigger", "type": "trigger" },
-      { "id": "lookup", "type": "agent", "capability": "customer.lookup" },
-      { "id": "check_invoice", "type": "agent", "capability": "invoice.status" },
-      { "id": "draft", "type": "agent", "capability": "message.draft" },
-      { "id": "approval", "type": "approval" },
-      { "id": "send", "type": "action", "capability": "message.send" }
-    ],
-    "edges": [
-      { "from": "trigger", "to": "lookup" },
-      { "from": "lookup", "to": "check_invoice" },
-      { "from": "check_invoice", "to": "draft" },
-      { "from": "draft", "to": "approval" },
-      { "from": "approval", "to": "send" }
-    ]
-  },
-  "steps": [
-    {
-      "id": "step_1",
-      "type": "read",
-      "capability": "customer.lookup",
-      "description": "Look up customer Ngozi",
-      "parameters": { "query": "Ngozi" },
-      "requiresApproval": false,
-      "dependsOn": []
-    },
-    {
-      "id": "step_2",
-      "type": "read",
-      "capability": "invoice.status",
-      "description": "Check invoice status for customer",
-      "parameters": {},
-      "requiresApproval": false,
-      "dependsOn": ["step_1"]
-    },
-    {
-      "id": "step_3",
-      "type": "draft",
-      "capability": "message.draft",
-      "description": "Draft payment reminder message",
-      "parameters": { "templateType": "payment_reminder" },
-      "requiresApproval": false,
-      "dependsOn": ["step_2"]
-    },
-    {
-      "id": "step_4",
-      "type": "approval",
-      "capability": "message.send",
-      "description": "Request approval to send message",
-      "parameters": {},
-      "requiresApproval": true,
-      "dependsOn": ["step_3"]
-    },
-    {
-      "id": "step_5",
-      "type": "write",
-      "capability": "message.send",
-      "description": "Send payment reminder to Ngozi",
-      "parameters": { "message": "<draft content>" },
-      "requiresApproval": true,
-      "dependsOn": ["step_4"]
-    }
-  ],
-  "sideEffectClass": "external_write",
-  "requiresApproval": true,
-  "rationaleSummary": "Workflow to send payment reminder: lookup customer, check invoice status, draft message, get approval, and send."
-}
-
 CRITICAL RULES:
 - If intent is ambiguous or missing critical information, add a fallback node with clarification
 - Never invent capabilities not in the registry
@@ -285,22 +219,18 @@ CRITICAL RULES:
   private validateAndNormalizeOutput(output: unknown): WorkflowGenerationOutput {
     const data = output as WorkflowGenerationOutput;
 
-    // Ensure required fields exist
     if (!data.workflowIR || !data.steps || !data.sideEffectClass) {
       throw new Error("Missing required workflow fields");
     }
 
-    // Validate workflow IR structure
     if (!data.workflowIR.version || !data.workflowIR.nodes || !Array.isArray(data.workflowIR.nodes)) {
       throw new Error("Invalid workflow IR structure");
     }
 
-    // Ensure edges array exists
     if (!data.workflowIR.edges) {
       data.workflowIR.edges = [];
     }
 
-    // Ensure all steps have required fields
     for (const step of data.steps) {
       if (!step.id || !step.type || !step.capability || !step.description) {
         throw new Error(`Invalid step structure: ${JSON.stringify(step)}`);
@@ -310,12 +240,10 @@ CRITICAL RULES:
       if (step.requiresApproval === undefined) step.requiresApproval = false;
     }
 
-    // Default requiresApproval to false if not specified
     if (data.requiresApproval === undefined) {
       data.requiresApproval = false;
     }
 
-    // Ensure rationaleSummary exists
     if (!data.rationaleSummary) {
       data.rationaleSummary = "Workflow plan generated from meaning state";
     }
@@ -329,4 +257,34 @@ CRITICAL RULES:
  */
 export function createWorkflowGenerator(config: WorkflowLLMConfig): OpenAIWorkflowGenerator {
   return new OpenAIWorkflowGenerator(config);
+}
+
+/**
+ * Helper to build WorkflowLLMConfig from environment.
+ * OpenRouter takes precedence when OPENROUTER_API_KEY is present.
+ */
+export function workflowConfigFromEnv(): WorkflowLLMConfig {
+  const openRouterKey = process.env.OPENROUTER_API_KEY;
+  const openAiKey = process.env.OPENAI_API_KEY;
+
+  if (openRouterKey) {
+    return {
+      apiKey: openRouterKey,
+      baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+      model: process.env.OPENAI_MODEL ?? "openai/gpt-4o-mini",
+      defaultHeaders: {
+        "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER ?? "https://github.com/Logonotobscurity/pal",
+        "X-Title": process.env.OPENROUTER_X_TITLE ?? "PAL – Meaning-to-Action",
+      },
+    };
+  }
+
+  if (!openAiKey) {
+    throw new Error("Neither OPENROUTER_API_KEY nor OPENAI_API_KEY is set");
+  }
+
+  return {
+    apiKey: openAiKey,
+    model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+  };
 }
