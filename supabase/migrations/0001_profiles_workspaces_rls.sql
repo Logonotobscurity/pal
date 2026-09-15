@@ -54,6 +54,63 @@ create table public.workspaces (
   created_at timestamptz not null default now()
 );
 
+-- ---------------------------------------------------------------------------
+-- workspace_members — the membership/role table every tenant-scoped table
+-- will authorize through.
+-- ---------------------------------------------------------------------------
+create table public.workspace_members (
+  workspace_id uuid not null references public.workspaces (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  role text not null check (role in ('owner', 'admin', 'member')),
+  created_at timestamptz not null default now(),
+  primary key (workspace_id, user_id)
+);
+
+-- ---------------------------------------------------------------------------
+-- Membership helpers — SECURITY DEFINER so policies on workspace_members do
+-- not recurse. search_path is pinned to public (function hijack defense).
+-- MUST BE CREATED BEFORE RLS POLICIES THAT USE THEM.
+-- ---------------------------------------------------------------------------
+create or replace function public.is_workspace_member(target_workspace uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.workspace_members m
+    where m.workspace_id = target_workspace
+      and m.user_id = auth.uid()
+  );
+$$;
+
+create or replace function public.has_workspace_role(
+  target_workspace uuid,
+  allowed_roles text[]
+)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.workspace_members m
+    where m.workspace_id = target_workspace
+      and m.user_id = auth.uid()
+      and m.role = any (allowed_roles)
+  );
+$$;
+
+grant execute on function public.is_workspace_member(uuid) to authenticated;
+grant execute on function public.has_workspace_role(uuid, text[]) to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- NOW enable RLS and create policies for workspaces and workspace_members
+-- ---------------------------------------------------------------------------
 alter table public.workspaces enable row level security;
 
 create policy "workspace members can read their workspaces"
@@ -76,18 +133,6 @@ create policy "workspace owners can delete their workspaces"
   on public.workspaces for delete
   to authenticated
   using (public.has_workspace_role(id, array['owner']::text[]));
-
--- ---------------------------------------------------------------------------
--- workspace_members — the membership/role table every tenant-scoped table
--- will authorize through.
--- ---------------------------------------------------------------------------
-create table public.workspace_members (
-  workspace_id uuid not null references public.workspaces (id) on delete cascade,
-  user_id uuid not null references auth.users (id) on delete cascade,
-  role text not null check (role in ('owner', 'admin', 'member')),
-  created_at timestamptz not null default now(),
-  primary key (workspace_id, user_id)
-);
 
 alter table public.workspace_members enable row level security;
 
@@ -126,47 +171,6 @@ create policy "workspace owners and admins can remove members, members can leave
     public.has_workspace_role(workspace_id, array['owner', 'admin']::text[])
     or user_id = auth.uid()
   );
-
--- ---------------------------------------------------------------------------
--- Membership helpers — SECURITY DEFINER so policies on workspace_members do
--- not recurse. search_path is pinned to public (function hijack defense).
--- ---------------------------------------------------------------------------
-create or replace function public.is_workspace_member(target_workspace uuid)
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.workspace_members m
-    where m.workspace_id = target_workspace
-      and m.user_id = auth.uid()
-  );
-$$;
-
-create or replace function public.has_workspace_role(
-  target_workspace uuid,
-  allowed_roles text[]
-)
-returns boolean
-language sql
-stable
-security definer
-set search_path = public
-as $$
-  select exists (
-    select 1
-    from public.workspace_members m
-    where m.workspace_id = target_workspace
-      and m.user_id = auth.uid()
-      and m.role = any (allowed_roles)
-  );
-$$;
-
-grant execute on function public.is_workspace_member(uuid) to authenticated;
-grant execute on function public.has_workspace_role(uuid, text[]) to authenticated;
 
 -- ---------------------------------------------------------------------------
 -- handle_new_user — on signup, atomically create the profile, a personal
