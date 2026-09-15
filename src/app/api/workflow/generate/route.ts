@@ -1,19 +1,9 @@
 /**
  * POST /api/workflow/generate — Generate ActionPlan from MeaningState
- * 
+ *
  * Implements PAL_ARCHITECTURE.md §20: Workflow Agent endpoint
- * 
- * Request:
- * {
- *   "meaningStateId": "meaning_abc123",
- *   "workspaceId": "uuid"
- * }
- * 
- * Response:
- * {
- *   "actionPlan": { ... },
- *   "validationWarnings": [ ... ]
- * }
+ *
+ * LLM: prefers OpenRouter when OPENROUTER_API_KEY is set; else direct OpenAI.
  */
 
 import { NextRequest, NextResponse } from "next/server";
@@ -30,16 +20,40 @@ const GenerateWorkflowRequestSchema = z.object({
   businessContext: z.string().optional(),
 });
 
+function resolveWorkflowLlmConfig() {
+  const openRouterKey = process.env.OPENROUTER_API_KEY;
+  const openAiKey = process.env.OPENAI_API_KEY;
+  const model = process.env.OPENAI_MODEL ?? (openRouterKey ? "openai/gpt-4o-mini" : "gpt-4o-mini");
+
+  if (openRouterKey) {
+    return {
+      apiKey: openRouterKey,
+      model,
+      baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+      temperature: 0.2 as const,
+      maxTokens: 3000 as const,
+    };
+  }
+
+  if (!openAiKey) {
+    throw new Error("Neither OPENROUTER_API_KEY nor OPENAI_API_KEY is configured");
+  }
+
+  return {
+    apiKey: openAiKey,
+    model,
+    temperature: 0.2 as const,
+    maxTokens: 3000 as const,
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Parse and validate request body
     const body = await request.json();
     const input = GenerateWorkflowRequestSchema.parse(body);
 
-    // Create authenticated Supabase client
     const supabase = await createPalServerClient();
 
-    // Verify authentication
     const {
       data: { user },
       error: authError,
@@ -49,7 +63,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify workspace membership
     const { data: membership, error: membershipError } = await supabase
       .from("workspace_members")
       .select("role")
@@ -61,7 +74,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Forbidden: Not a workspace member" }, { status: 403 });
     }
 
-    // Retrieve meaning state
     const semanticDb = new SemanticDbService(supabase);
     const meaningState = await semanticDb.getMeaningState(input.meaningStateId, input.workspaceId);
 
@@ -69,24 +81,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Meaning state not found" }, { status: 404 });
     }
 
-    // Check for OpenAI API key
-    const openaiApiKey = process.env.OPENAI_API_KEY;
-    if (!openaiApiKey) {
-      return NextResponse.json(
-        { error: "Server configuration error: OpenAI API key not configured" },
-        { status: 500 },
-      );
-    }
+    const llmConfig = resolveWorkflowLlmConfig();
+    const generator = createWorkflowGenerator(llmConfig);
 
-    // Create workflow generator
-    const generator = createWorkflowGenerator({
-      apiKey: openaiApiKey,
-      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-      temperature: 0.2,
-      maxTokens: 3000,
-    });
-
-    // Create workflow agent
     const agent = createWorkflowAgent(
       {
         generator,
@@ -99,18 +96,15 @@ export async function POST(request: NextRequest) {
       },
     );
 
-    // Generate action plan
     const actionPlan = await agent.generatePlan(meaningState);
 
-    // Persist action plan
     const workflowDb = new WorkflowDbService(supabase);
     await workflowDb.createActionPlan(actionPlan, input.workspaceId);
 
-    // Return action plan
     return NextResponse.json(
       {
         actionPlan,
-        validationWarnings: [], // Could be populated from validation result if needed
+        validationWarnings: [],
       },
       { status: 201 },
     );
@@ -128,7 +122,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (err instanceof Error) {
-      // Check if it's a validation error
       if (err.message.includes("validation failed")) {
         return NextResponse.json(
           {

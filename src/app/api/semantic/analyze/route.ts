@@ -1,17 +1,18 @@
 /**
  * POST /api/semantic/analyze — Extract semantic meaning from SpeechEvent
- * 
+ *
  * Implements PAL_ARCHITECTURE.md §19: Semantic Agent converts SpeechEvent → MeaningState
- * 
+ *
  * Input: SpeechEvent ID
  * Output: MeaningState with intent, entities, constraints, temporal relations, ambiguities
+ *
+ * LLM: prefers OpenRouter when OPENROUTER_API_KEY is set; else direct OpenAI.
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getUser } from "@/lib/auth/session";
 import { createPalServerClient } from "@/lib/db/server";
-import { getServerEnv } from "@/lib/env";
 import { createSemanticExtractor } from "@/providers/openai-llm";
 import { createSemanticAgent } from "@/services/semantic/agent";
 import { VoiceDbService } from "@/services/voice/db";
@@ -24,15 +25,39 @@ const AnalyzeRequestSchema = z.object({
   businessContext: z.string().optional(),
 });
 
+function resolveLlmConfig() {
+  const openRouterKey = process.env.OPENROUTER_API_KEY;
+  const openAiKey = process.env.OPENAI_API_KEY;
+  const model = process.env.OPENAI_MODEL ?? (openRouterKey ? "openai/gpt-4o-mini" : "gpt-4o-mini");
+
+  if (openRouterKey) {
+    return {
+      apiKey: openRouterKey,
+      model,
+      // baseURL supported once provider accepts it (PR #8); harmless if ignored today
+      baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
+      temperature: 0.1 as const,
+    };
+  }
+
+  if (!openAiKey) {
+    throw new Error("Neither OPENROUTER_API_KEY nor OPENAI_API_KEY is configured");
+  }
+
+  return {
+    apiKey: openAiKey,
+    model,
+    temperature: 0.1 as const,
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // 1. Authentication
     const user = await getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // 2. Parse and validate request
     const body = await request.json();
     const validation = AnalyzeRequestSchema.safeParse(body);
     if (!validation.success) {
@@ -44,7 +69,6 @@ export async function POST(request: NextRequest) {
 
     const { speechEventId, workspaceId, conversationMemory, businessContext } = validation.data;
 
-    // 3. Verify workspace membership
     const supabase = await createPalServerClient();
     const { data: membership } = await supabase
       .from("workspace_members")
@@ -57,22 +81,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    // 4. Get SpeechEvent from database
     const voiceDb = new VoiceDbService(supabase);
     const speechEvent = await voiceDb.getSpeechEvent(speechEventId, workspaceId);
     if (!speechEvent) {
       return NextResponse.json({ error: "Speech event not found" }, { status: 404 });
     }
 
-    // 5. Initialize LLM-based semantic extractor
-    const env = getServerEnv();
-    const extractor = createSemanticExtractor({
-      apiKey: env.OPENAI_API_KEY,
-      model: env.OPENAI_MODEL,
-      temperature: 0.1,
-    });
+    const llmConfig = resolveLlmConfig();
+    const extractor = createSemanticExtractor(llmConfig);
 
-    // 6. Create semantic agent
     const agent = createSemanticAgent(
       {
         extractor,
@@ -86,14 +103,11 @@ export async function POST(request: NextRequest) {
       },
     );
 
-    // 7. Extract semantic meaning
     const meaningState = await agent.extractMeaning(speechEvent);
 
-    // 8. Persist MeaningState to database
     const semanticDb = new SemanticDbService(supabase);
     await semanticDb.createMeaningState(meaningState, workspaceId);
 
-    // 9. Return MeaningState
     return NextResponse.json({
       success: true,
       meaningState: {
