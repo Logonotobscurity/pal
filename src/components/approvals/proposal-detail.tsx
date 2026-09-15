@@ -1,7 +1,8 @@
 /**
  * Proposal Detail Component
- * 
- * Detailed view with full provenance chain and approval history
+ *
+ * Detailed view with full provenance chain and approval history.
+ * Copy centers the ASK concept: PAL proposes; the owner decides.
  */
 
 "use client";
@@ -23,6 +24,27 @@ type ProposalWithDecisions = ActionProposal & {
     createdAt: string;
   }>;
 };
+
+function statusLabel(status: ActionProposal["status"]): string {
+  switch (status) {
+    case "pending":
+      return "PAL is asking";
+    case "approved":
+      return "Approved";
+    case "rejected":
+      return "Rejected";
+    case "edited":
+      return "Edited";
+    case "expired":
+      return "Expired";
+    case "executed":
+      return "Executed";
+    case "failed":
+      return "Failed";
+    default:
+      return status;
+  }
+}
 
 export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   const [proposal, setProposal] = useState<ProposalWithDecisions | null>(null);
@@ -65,7 +87,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-sm text-neutral-400">Loading proposal...</p>
+        <p className="text-sm text-neutral-400">Loading request…</p>
       </div>
     );
   }
@@ -73,7 +95,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
   if (error || !proposal) {
     return (
       <div className="rounded-md border border-red-900/50 bg-red-950/20 px-4 py-3 text-sm text-red-400">
-        <p>Error loading proposal: {error || "Not found"}</p>
+        <p>Could not load request: {error || "Not found"}</p>
       </div>
     );
   }
@@ -89,22 +111,29 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
     });
   };
 
+  const isAsking = proposal.status === "pending";
+
   return (
     <div className="space-y-6">
       {/* Overview Card */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
-        <div className="flex items-start justify-between">
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
+        <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold text-neutral-100">
-              {proposal.actionType}
-            </h2>
-            <p className="mt-1 text-sm text-neutral-400">
-              Created {formatTime(proposal.createdAt)}
+            <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+              {isAsking ? "PAL is asking for your approval" : "Proposal"}
             </p>
+            <h2 className="mt-1 text-xl font-semibold text-neutral-100">{proposal.actionType}</h2>
+            <p className="mt-1 text-sm text-neutral-400">Created {formatTime(proposal.createdAt)}</p>
           </div>
-          <div className="flex gap-2">
-            <span className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1 text-xs font-medium text-neutral-300">
-              {proposal.status}
+          <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <span
+              className={`rounded-md border px-3 py-1 text-xs font-medium ${
+                isAsking
+                  ? "border-emerald-900/50 bg-emerald-950/30 text-emerald-400"
+                  : "border-neutral-700 bg-neutral-800 text-neutral-300"
+              }`}
+            >
+              {statusLabel(proposal.status)}
             </span>
             <span className="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-1 text-xs font-medium text-neutral-300">
               {proposal.riskClass}
@@ -115,16 +144,14 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
       {/* Details Grid */}
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Left Column */}
         <div className="space-y-6">
-          {/* Action Details */}
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
+          <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
             <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-              Action Details
+              Action details
             </h3>
             <div className="mt-4 space-y-4">
               <div>
-                <p className="text-xs text-neutral-500">Action Type</p>
+                <p className="text-xs text-neutral-500">Action type</p>
                 <p className="mt-1 text-sm text-neutral-200">{proposal.actionType}</p>
               </div>
               {proposal.recipient && (
@@ -141,68 +168,62 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
               )}
               {proposal.scheduledFor && (
                 <div>
-                  <p className="text-xs text-neutral-500">Scheduled For</p>
+                  <p className="text-xs text-neutral-500">Scheduled for</p>
                   <p className="mt-1 text-sm text-neutral-200">{proposal.scheduledFor}</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Policy Decision */}
           {proposal.policyDecision && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-                Policy Decision
+                Why PAL is asking
               </h3>
               <div className="mt-4 space-y-4">
                 <div>
-                  <p className="text-xs text-neutral-500">Allowed</p>
+                  <p className="text-xs text-neutral-500">Allowed by policy</p>
                   <p className="mt-1 text-sm text-neutral-200">
                     {proposal.policyDecision.allowed ? "Yes" : "No"}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-neutral-500">Requires Approval</p>
+                  <p className="text-xs text-neutral-500">Requires your approval</p>
                   <p className="mt-1 text-sm text-neutral-200">
                     {proposal.policyDecision.requiresApproval ? "Yes" : "No"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-neutral-500">Reason</p>
-                  <p className="mt-1 text-sm text-neutral-300">
-                    {proposal.policyDecision.reason}
-                  </p>
+                  <p className="mt-1 text-sm text-neutral-300">{proposal.policyDecision.reason}</p>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Right Column */}
         <div className="space-y-6">
-          {/* Exact Payload */}
           {proposal.exactPayload !== null && proposal.exactPayload !== undefined ? (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-                Exact Payload
+                Exact action (what will run if you approve)
               </h3>
-              <pre className="mt-4 max-h-96 overflow-auto rounded bg-neutral-950 p-4 text-xs text-neutral-300">
+              <pre className="mt-4 max-h-96 overflow-auto rounded-lg bg-neutral-950 p-4 text-xs text-neutral-300">
                 {JSON.stringify(proposal.exactPayload, null, 2)}
               </pre>
             </div>
           ) : null}
 
-          {/* Evidence References */}
           {proposal.evidenceRefs && proposal.evidenceRefs.length > 0 && (
-            <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
+            <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
               <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-                Evidence Chain
+                Evidence chain
               </h3>
               <div className="mt-4 space-y-3">
                 {proposal.evidenceRefs.map((ref, idx) => (
                   <div
                     key={idx}
-                    className="rounded border border-neutral-800 bg-neutral-950/50 p-3"
+                    className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-3"
                   >
                     <div className="flex items-center gap-2">
                       <span className="rounded bg-neutral-800 px-2 py-0.5 font-mono text-xs text-neutral-400">
@@ -211,9 +232,7 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
                       <span className="text-xs text-neutral-500">{ref.id}</span>
                     </div>
                     {ref.source && (
-                      <p className="mt-2 text-xs text-neutral-400">
-                        Source: {ref.source}
-                      </p>
+                      <p className="mt-2 text-xs text-neutral-400">Source: {ref.source}</p>
                     )}
                     {ref.uri && (
                       <p className="mt-1 font-mono text-xs text-neutral-600">{ref.uri}</p>
@@ -226,17 +245,16 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         </div>
       </div>
 
-      {/* Approval History */}
       {proposal.approvalDecisions && proposal.approvalDecisions.length > 0 && (
-        <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
+        <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-            Approval History
+            Decision history
           </h3>
           <div className="mt-4 space-y-3">
             {proposal.approvalDecisions.map((decision) => (
               <div
                 key={decision.id}
-                className="rounded border border-neutral-800 bg-neutral-950/50 p-4"
+                className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-4"
               >
                 <div className="flex items-start justify-between">
                   <div>
@@ -254,12 +272,8 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
                     <p className="mt-2 text-sm text-neutral-300">{decision.reason}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-neutral-500">
-                      Version {decision.checkedVersion}
-                    </p>
-                    <p className="mt-1 text-xs text-neutral-600">
-                      {formatTime(decision.createdAt)}
-                    </p>
+                    <p className="text-xs text-neutral-500">Version {decision.checkedVersion}</p>
+                    <p className="mt-1 text-xs text-neutral-600">{formatTime(decision.createdAt)}</p>
                   </div>
                 </div>
               </div>
@@ -268,18 +282,15 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
         </div>
       )}
 
-      {/* Metadata */}
-      <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-6">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">
-          Metadata
-        </h3>
+      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Metadata</h3>
         <div className="mt-4 grid gap-4 text-xs md:grid-cols-3">
           <div>
             <p className="text-neutral-500">Proposal ID</p>
             <p className="mt-1 font-mono text-neutral-300">{proposal.id}</p>
           </div>
           <div>
-            <p className="text-neutral-500">Action Plan ID</p>
+            <p className="text-neutral-500">Action plan ID</p>
             <p className="mt-1 font-mono text-neutral-300">{proposal.actionPlanId}</p>
           </div>
           <div>
