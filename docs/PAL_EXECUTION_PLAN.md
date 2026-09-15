@@ -177,12 +177,58 @@
   - **Depends on**: Task 3.4
   - **Refs**: PAL_ARCHITECTURE.md §25; PAL_DOMAIN_MODEL.md VerificationResult
 
-## Phase 4 — Benchmark & hardening
+## Phase 4 — Benchmark & Hardening (Sahara Challenge)
 
-- [ ] Task 4.1: Run PAL_BENCHMARK methodology, fix regressions
-- [ ] Task 4.2: Production WebSocket deployment strategy
-- [ ] Task 4.3: Supabase Realtime integration for live transcripts
+**Challenge**: [Sahara CodeSwitch Africa Challenge](https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/)  
+**Target**: Full end-to-end evaluation on AfriSwitch + AfriSwitchCare datasets
+
+- [ ] Task 4.1: Dataset integration and benchmark infrastructure
+  - **Goal**: Load AfriSwitch/AfriSwitchCare datasets and run PAL pipeline evaluation
+  - **Scope**:
+    - Scripts: `benchmarks/load_datasets.py`, `benchmarks/evaluate_pipeline.py`
+    - Adapters: `benchmarks/adapters/sahara.ts`, `whisper.ts`, `assemblyai.ts`
+    - Reports: `benchmarks/reports/comparison.md`
+    - Docs: `docs/PAL_BENCHMARK.md` (expanded ✓)
+  - **Acceptance criteria**:
+    - [ ] Load AfriSwitch dataset (gated HF access)
+    - [ ] Load AfriSwitchCare dataset (gated HF access)
+    - [ ] Speaker-disjoint train/test split validation
+    - [ ] Run Sahara v2.5 through full PAL pipeline
+    - [ ] Run ≥2 comparison models (Whisper, AssemblyAI)
+    - [ ] Measure 5-tier metrics (transcription, extraction, semantic, action, safety)
+    - [ ] Generate comparison report
+    - [ ] Document results in `benchmarks/runs/`
+  - **Depends on**: Phase 3 complete
+  - **Refs**: PAL_BENCHMARK.md, Challenge requirements
+
+- [ ] Task 4.2: Challenge submission materials
+  - **Goal**: Prepare all required deliverables for Sahara Challenge
+  - **Scope**:
+    - Video: Demo of voice → action → approval flow
+    - Report: Benchmark comparison (Sahara vs ≥2 others)
+    - Statement: Responsible AI considerations
+    - Docs: README challenge section
+  - **Acceptance criteria**:
+    - [ ] Working prototype video (< 5 minutes)
+    - [ ] Benchmark results table (all 5 tiers)
+    - [ ] Responsible AI statement (ethics, limitations, intended use)
+    - [ ] Problem/solution description
+    - [ ] Public GitHub repository with docs
+    - [ ] Submission via challenge portal
+  - **Depends on**: Task 4.1
+  - **Refs**: https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/
+
+- [ ] Task 4.3: Production WebSocket deployment strategy
+  - **Goal**: Determine deployment architecture for Sahara WebSocket in production
+  - **Scope**: Infrastructure planning, scaling considerations, fallback strategies
+  - **Depends on**: Challenge results
+  - **Refs**: PAL_ARCHITECTURE.md §8, §37
+
 - [ ] Task 4.4: Audio quality monitoring and diagnostics
+  - **Goal**: Real-time monitoring of transcription quality, code-switch detection
+  - **Scope**: Metrics dashboard, alerting, regression detection
+  - **Depends on**: Task 4.1
+  - **Refs**: PAL_BENCHMARK.md §Regression Detection
 
 ## Task template (GitHub-issue style)
 
