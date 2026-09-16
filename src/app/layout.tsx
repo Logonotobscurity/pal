@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PAL",
+  title: "PAL — Meaning-to-Action",
   description:
     "Speak naturally. PAL understands the meaning, builds the work, and asks before it acts.",
 };
