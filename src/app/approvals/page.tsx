@@ -27,7 +27,7 @@ export default async function ApprovalsPage() {
 
   return (
     <>
-      <AppHeader active="approvals" />
+      <AppHeader active="approvals" signedIn />
       <main className="min-h-screen bg-neutral-950">
         <div className="border-b border-neutral-800">
           <div className="mx-auto max-w-6xl px-6 py-8">
