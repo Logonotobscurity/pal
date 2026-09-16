@@ -23,12 +23,17 @@ export default function EvaluationPage() {
             (meaning → plan → policy → approval). Safety metrics are
             architecture-enforced, not ASR-dependent.
           </p>
-          <p className="mt-1 text-xs text-neutral-600">
-            Methodology: {results.methodology} · Report date: {results.date}
+          <p className="mt-2 text-xs text-neutral-500">
+            Report date: {results.date} ·{" "}
+            <Link
+              href="/evaluation/methodology"
+              className="text-emerald-500 hover:underline"
+            >
+              How we measure →
+            </Link>
           </p>
         </div>
 
-        {/* Model cards */}
         <section className="mb-10">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
             Models compared
@@ -52,7 +57,6 @@ export default function EvaluationPage() {
           </div>
         </section>
 
-        {/* Headline stats */}
         <section className="mb-10 grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-5 py-4 text-center">
             <p className="text-2xl font-bold text-emerald-400">93.5%</p>
@@ -68,7 +72,6 @@ export default function EvaluationPage() {
           </div>
         </section>
 
-        {/* WER table */}
         <section className="mb-10 overflow-x-auto">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
             Transcription (WER / CER) by condition
@@ -99,10 +102,11 @@ export default function EvaluationPage() {
               ))}
             </tbody>
           </table>
-          <p className="mt-2 text-xs text-neutral-600">Lower is better. Highlighted WER favors Sahara on mixed speech.</p>
+          <p className="mt-2 text-xs text-neutral-600">
+            Lower is better. Highlighted WER favors Sahara on mixed speech.
+          </p>
         </section>
 
-        {/* Downstream */}
         <section className="mb-10 overflow-x-auto">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
             Downstream task performance (same PAL pipeline)
@@ -138,7 +142,6 @@ export default function EvaluationPage() {
           </table>
         </section>
 
-        {/* Datasets */}
         <section className="mb-10">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
             Datasets
@@ -169,24 +172,20 @@ export default function EvaluationPage() {
           <p className="mt-2 text-sm text-neutral-400">
             PAL scores the full chain: transcription → critical fields → intent → constrained
             workflow → policy → human approval. No model may execute external side effects.
-            See <code className="text-neutral-300">docs/PAL_BENCHMARK.md</code> and{" "}
-            <code className="text-neutral-300">SUBMISSION.md</code> in the repo.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link
-              href="/approvals"
+              href="/evaluation/methodology"
               className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500"
+            >
+              Full methodology
+            </Link>
+            <Link
+              href="/approvals"
+              className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-neutral-500"
             >
               Open Approvals
             </Link>
-            <a
-              href="https://github.com/Logonotobscurity/pal"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg border border-neutral-700 px-4 py-2 text-sm text-neutral-300 transition hover:border-neutral-500"
-            >
-              View source
-            </a>
           </div>
         </section>
       </main>
