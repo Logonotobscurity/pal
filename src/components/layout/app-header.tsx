@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/layout/logout-button";
 
 type AppHeaderProps = {
   /** Highlight the active nav item */
   active?: "home" | "evaluation" | "approvals" | "login";
-  /** When true, show Sign out instead of Sign in */
+  /**
+   * Optional override. When omitted, session is read from Supabase
+   * so public pages also show Sign out after login.
+   */
   signedIn?: boolean;
 };
 
@@ -12,7 +16,21 @@ const linkBase =
   "text-sm text-neutral-400 transition hover:text-neutral-100";
 const linkActive = "text-sm font-medium text-emerald-400";
 
-export function AppHeader({ active, signedIn = false }: AppHeaderProps) {
+export async function AppHeader({ active, signedIn }: AppHeaderProps) {
+  let isSignedIn = signedIn ?? false;
+
+  if (signedIn === undefined) {
+    try {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      isSignedIn = Boolean(user);
+    } catch {
+      isSignedIn = false;
+    }
+  }
+
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-800/80 bg-neutral-950/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
@@ -52,7 +70,7 @@ export function AppHeader({ active, signedIn = false }: AppHeaderProps) {
           >
             GitHub
           </a>
-          {signedIn ? (
+          {isSignedIn ? (
             <LogoutButton />
           ) : (
             <Link
