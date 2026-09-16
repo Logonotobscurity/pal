@@ -13,10 +13,10 @@ Agents propose. Policy decides. Owner approves. Executor acts. Verifier confirms
 ## 1. Threat Model (Summary)
 
 ### Assets
-- User speech audio and transcripts (potentially sensitive business/clinical content)
+- User speech audio and transcripts (potentially sensitive business content)
 - Structured meaning, action plans, and proposals
 - Workspace data and membership
-- External integration credentials and side-effect capabilities
+- External integration credentials and side-effect capabilities (messaging, payments, etc.)
 - Audit / provenance chain
 
 ### Actors
@@ -29,7 +29,7 @@ Agents propose. Policy decides. Owner approves. Executor acts. Verifier confirms
 ### Trust Boundaries
 - Browser ↔ Next.js (public surface)
 - Next.js route handlers ↔ Supabase (RLS + service role)
-- PAL services ↔ external providers (Sahara, OpenAI/OpenRouter, future integrations)
+- PAL services ↔ external providers (Sahara, OpenAI, future integrations)
 - LLM output ↔ policy / approval gate (never trusted for side effects)
 
 ### Primary Risks
@@ -81,7 +81,7 @@ Agents propose. Policy decides. Owner approves. Executor acts. Verifier confirms
 - **Never commit real values.** `.env`, `.env.local`, and any file containing secrets are gitignored. `.env.example` contains only placeholders and comments.
 - **Rotate immediately** if any secret appears in git history, logs, screenshots, or chat.
 - Prefer platform secret stores (Vercel, Supabase, GitHub Actions secrets) over long-lived files on disk.
-- Service-role key and Sahara/OpenAI/OpenRouter keys are server-only. Document every new secret in `.env.example` with a clear comment about its scope.
+- Service-role key and Sahara/OpenAI keys are server-only. Document every new secret in `.env.example` with a clear comment about its scope.
 - Database passwords and connection strings must never appear in application code or client-visible configuration.
 
 **Incident response (secrets):**  
@@ -96,8 +96,8 @@ Agents propose. Policy decides. Owner approves. Executor acts. Verifier confirms
 
 - Prefer well-maintained packages with clear licenses (MIT, Apache-2.0, BSD preferred).
 - Pin major versions; review changelogs for security-relevant updates.
-- Do not add new runtime dependencies without a documented reason.
-- Run `npm audit` (or equivalent) as part of CI. Critical vulnerabilities should block merge when feasible.
+- Do not add new runtime dependencies without a documented reason and an update to the relevant architecture or execution-plan section.
+- Run `npm audit` (or equivalent) as part of CI once the workflow is in place. Critical vulnerabilities block merge.
 - Avoid packages that execute arbitrary code at install time when alternatives exist.
 
 ---
@@ -107,16 +107,20 @@ Agents propose. Policy decides. Owner approves. Executor acts. Verifier confirms
 If you discover a security issue during development:
 
 1. Do **not** open a public GitHub issue that discloses exploitable details.
-2. Document the finding privately (or in a private advisory if available).
-3. For immediate high-severity issues (live secrets, auth bypass, tenancy violation), stop related work and notify the repository owner.
-4. Fix in a dedicated branch, add tests where possible, and update this document if a new rule is required.
+2. Document the finding privately (or in a private issue / security advisory if the repository later supports it).
+3. For immediate high-severity issues (e.g. live secrets, authentication bypass, tenancy violation), stop related work and notify the repository owner.
+4. Fix the issue in a dedicated branch, update tests, and update this document if a new rule or process is required.
 
-For questions about whether a change violates these rules, treat the answer as “yes until proven otherwise” and escalate.
+For questions about whether a change violates these rules, treat the answer as "yes until proven otherwise" and escalate.
 
 ---
 
 ## 6. Evolution
 
-This document is the source of truth for security constraints. Any intentional relaxation requires explicit approval, an update to this file in the same change, and corresponding tests or policy adjustments.
+This document is the source of truth for security constraints. Any intentional relaxation requires:
 
-Last major update: 2026-09-15 (concrete policy activated).
+- Explicit approval,
+- An update to this file in the same change,
+- Corresponding tests or policy-engine adjustments.
+
+Last major update: 2026-09-15 (initial concrete policy).
