@@ -1,14 +1,15 @@
 /**
- * AgentStatus — thin status surface for PAL pipeline stages.
+ * AgentStatus — status surface for PAL pipeline stages.
  *
- * Purpose: communicate *what kind of work* is happening (ASK concept),
- * not just a generic spinner. Ready to host Thinking Orbs when the
- * dependency is added (`npm install thinking-orbs`).
+ * Communicates *what kind of work* is happening (ASK concept) via
+ * Thinking Orbs (`thinking-orbs`), not a generic spinner.
  *
- * Stages align with: Speak → Understand → Plan → Ask → Act → Verify
+ * Stages: Speak → Understand → Plan → Ask → Act → Verify
  */
 
 "use client";
+
+import { ThinkingOrb } from "thinking-orbs";
 
 export type AgentStage =
   | "idle"
@@ -21,6 +22,17 @@ export type AgentStage =
   | "verifying"
   | "done"
   | "error";
+
+/** Orb states supported by thinking-orbs (subset we map to). */
+export type OrbState =
+  | "listening"
+  | "searching"
+  | "solving"
+  | "shaping"
+  | "composing"
+  | "working"
+  | "breathing"
+  | "connecting";
 
 const STAGE_COPY: Record<
   AgentStage,
@@ -46,56 +58,99 @@ const TONE_CLASS: Record<(typeof STAGE_COPY)[AgentStage]["tone"], string> = {
   danger: "border-red-900/50 bg-red-950/20 text-red-400",
 };
 
+/** Map PAL pipeline stage → honest Thinking Orb animation. */
+export function orbStateForStage(stage: AgentStage): OrbState {
+  switch (stage) {
+    case "listening":
+      return "listening";
+    case "transcribing":
+      return "searching";
+    case "understanding":
+      return "solving";
+    case "planning":
+      return "shaping";
+    case "asking":
+      return "breathing"; // human is the active agent
+    case "acting":
+      return "working";
+    case "verifying":
+      return "searching";
+    case "idle":
+    case "done":
+      return "breathing";
+    case "error":
+      return "connecting";
+    default:
+      return "breathing";
+  }
+}
+
 type AgentStatusProps = {
   stage: AgentStage;
-  /** Optional override for the short label */
   label?: string;
-  /** Show the secondary hint line */
   showHint?: boolean;
-  /** Size of the status chip */
+  /** sm → 20px orb; md → 64px orb */
   size?: "sm" | "md";
+  /** Freeze animation (e.g. idle resting frame) */
+  paused?: boolean;
   className?: string;
 };
 
-/**
- * Minimal status chip. Replace the inner placeholder with <ThinkingOrb /> when ready.
- */
 export function AgentStatus({
   stage,
   label,
   showHint = true,
   size = "md",
+  paused,
   className = "",
 }: AgentStatusProps) {
   const copy = STAGE_COPY[stage];
   const toneClass = TONE_CLASS[copy.tone];
   const textSize = size === "sm" ? "text-xs" : "text-sm";
+  const orbSize = size === "sm" ? 20 : 64;
+  const orbState = orbStateForStage(stage);
+  const isPaused =
+    paused ?? (stage === "idle" || stage === "done" || stage === "error");
 
   return (
     <div
-      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 ${toneClass} ${className}`}
+      className={`inline-flex items-center gap-3 rounded-full border px-3 py-1.5 ${toneClass} ${className}`}
       role="status"
       aria-live="polite"
       aria-label={label ?? copy.label}
     >
-      {/* Placeholder for Thinking Orb — keep layout stable when swapping in the real component */}
-      <span
-        className={`inline-block shrink-0 rounded-full bg-current opacity-70 ${
-          size === "sm" ? "h-2 w-2" : "h-2.5 w-2.5"
-        } ${stage !== "idle" && stage !== "done" && stage !== "error" ? "animate-pulse" : ""}`}
-        aria-hidden
-      />
-      <span className={`font-medium ${textSize}`}>{label ?? copy.label}</span>
-      {showHint && size !== "sm" && (
-        <span className="hidden text-xs opacity-70 sm:inline">{copy.hint}</span>
-      )}
+      <span className="inline-flex shrink-0 items-center justify-center" aria-hidden>
+        <ThinkingOrb
+          state={orbState}
+          size={orbSize}
+          theme="dark"
+          paused={isPaused}
+          aria-label={label ?? copy.label}
+        />
+      </span>
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className={`font-medium leading-tight ${textSize}`}>
+          {label ?? copy.label}
+        </span>
+        {showHint && size !== "sm" && (
+          <span className="text-xs leading-tight opacity-70">{copy.hint}</span>
+        )}
+      </span>
     </div>
   );
 }
 
 /** Map common pipeline step names to AgentStage (for steppers / logs). */
 export function stageFromPipelineStep(
-  step: "voice" | "speech" | "meaning" | "plan" | "policy" | "approval" | "execution" | "verification",
+  step:
+    | "voice"
+    | "speech"
+    | "meaning"
+    | "plan"
+    | "policy"
+    | "approval"
+    | "execution"
+    | "verification",
 ): AgentStage {
   switch (step) {
     case "voice":
