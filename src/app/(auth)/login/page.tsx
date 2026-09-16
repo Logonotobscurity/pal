@@ -23,6 +23,18 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+
+        <div className="w-full max-w-md rounded-lg border border-neutral-800/80 bg-neutral-900/20 px-4 py-3 text-center">
+          <p className="text-xs font-medium text-neutral-400">Demo / judges</p>
+          <p className="mt-1 text-xs leading-relaxed text-neutral-500">
+            Create a free account to open your personal workspace, or explore{" "}
+            <Link href="/evaluation" className="text-emerald-500/90 hover:underline">
+              Evaluation
+            </Link>{" "}
+            without signing in. Approvals require auth so proposals stay tenant-scoped.
+          </p>
+        </div>
+
         <Link href="/" className="text-xs text-neutral-500 transition hover:text-neutral-300">
           ← Back to home
         </Link>
