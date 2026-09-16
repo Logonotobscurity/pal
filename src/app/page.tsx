@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppHeader } from "@/components/layout/app-header";
+import { PipelineStageShowcase } from "@/components/agent/pipeline-stage-showcase";
 
 export default function CommandPage() {
   return (
@@ -28,7 +29,6 @@ export default function CommandPage() {
           </span>
         </p>
 
-        {/* Primary CTAs */}
         <div className="flex flex-col items-center gap-3 sm:flex-row">
           <Link
             href="/approvals"
@@ -44,7 +44,17 @@ export default function CommandPage() {
           </Link>
         </div>
 
-        {/* Benchmark highlight */}
+        {/* Thinking Orbs — live stage showcase */}
+        <section className="flex w-full max-w-2xl flex-col items-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900/40 px-6 py-6">
+          <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+            Agent state · Thinking Orbs
+          </p>
+          <PipelineStageShowcase />
+          <p className="text-center text-xs text-neutral-600">
+            Each motion matches a real pipeline phase — Ask uses a calm breath while you decide.
+          </p>
+        </section>
+
         <div className="w-full max-w-2xl rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-6 py-5">
           <p className="mb-3 text-center text-xs font-medium text-emerald-400">
             Benchmark (AfriSwitchCare / mixed speech)
@@ -70,7 +80,6 @@ export default function CommandPage() {
           </p>
         </div>
 
-        {/* Pipeline */}
         <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-neutral-400">
           {["Speak", "Understand", "Plan"].map((label) => (
             <span key={label} className="flex items-center gap-2">
@@ -93,7 +102,6 @@ export default function CommandPage() {
           </span>
         </div>
 
-        {/* Feature cards */}
         <div className="mt-4 grid w-full max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/approvals"
@@ -122,14 +130,10 @@ export default function CommandPage() {
             <p className="mt-2 text-sm text-neutral-300">
               Speak in any mix of languages. PAL turns meaning into a plan and asks before acting.
             </p>
-            <p className="mt-4 flex items-center gap-2 text-xs text-neutral-500">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-              Backend ready
-            </p>
+            <p className="mt-4 text-xs text-neutral-500">Backend ready · orbs show live stage</p>
           </div>
         </div>
 
-        {/* Example */}
         <div className="w-full max-w-3xl rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
           <p className="mb-3 text-xs font-medium text-neutral-500">Example · English–Swahili</p>
           <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 p-4">
@@ -146,7 +150,6 @@ export default function CommandPage() {
           </div>
         </div>
 
-        {/* Safety */}
         <div className="max-w-xl rounded-xl border border-neutral-800 bg-neutral-900/30 px-6 py-5 text-center">
           <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
             Safety invariant
