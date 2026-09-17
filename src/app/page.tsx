@@ -2,7 +2,7 @@ import Link from "next/link";
 import { AppHeader } from "@/components/layout/app-header";
 import { PipelineStageShowcase } from "@/components/agent/pipeline-stage-showcase";
 
-export default function CommandPage() {
+export default function HomePage() {
   return (
     <>
       <AppHeader active="home" />
@@ -31,20 +31,19 @@ export default function CommandPage() {
 
         <div className="flex flex-col items-center gap-3 sm:flex-row">
           <Link
-            href="/approvals"
+            href="/command"
             className="rounded-lg bg-emerald-600 px-8 py-3 text-sm font-medium text-white transition hover:bg-emerald-500"
+          >
+            Try Command
+          </Link>
+          <Link
+            href="/approvals"
+            className="rounded-lg border border-neutral-700 px-8 py-3 text-sm text-neutral-200 transition hover:border-neutral-500 hover:text-neutral-100"
           >
             See Approvals
           </Link>
-          <Link
-            href="/evaluation"
-            className="rounded-lg border border-neutral-700 px-8 py-3 text-sm text-neutral-200 transition hover:border-neutral-500 hover:text-neutral-100"
-          >
-            View evaluation
-          </Link>
         </div>
 
-        {/* Thinking Orbs — live stage showcase */}
         <section className="flex w-full max-w-2xl flex-col items-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900/40 px-6 py-6">
           <p className="text-xs font-medium uppercase tracking-wide text-neutral-500">
             Agent state · Thinking Orbs
@@ -125,13 +124,16 @@ export default function CommandPage() {
             <p className="mt-4 text-sm text-neutral-500">View benchmark →</p>
           </Link>
 
-          <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
-            <h3 className="text-base font-semibold text-neutral-100">Voice command</h3>
+          <Link
+            href="/command"
+            className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6 transition hover:border-neutral-600"
+          >
+            <h3 className="text-base font-semibold text-neutral-100">Command</h3>
             <p className="mt-2 text-sm text-neutral-300">
-              Speak in any mix of languages. PAL turns meaning into a plan and asks before acting.
+              Type a mixed-language request. The orb follows Speak through Ask.
             </p>
-            <p className="mt-4 text-xs text-neutral-500">Backend ready · orbs show live stage</p>
-          </div>
+            <p className="mt-4 text-sm text-neutral-500">Try the pipeline →</p>
+          </Link>
         </div>
 
         <div className="w-full max-w-3xl rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">

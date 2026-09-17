@@ -3,12 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/layout/logout-button";
 
 type AppHeaderProps = {
-  /** Highlight the active nav item */
-  active?: "home" | "evaluation" | "approvals" | "login";
-  /**
-   * Optional override. When omitted, session is read from Supabase
-   * so public pages also show Sign out after login.
-   */
+  active?: "home" | "command" | "evaluation" | "approvals" | "login";
   signedIn?: boolean;
 };
 
@@ -41,11 +36,14 @@ export async function AppHeader({ active, signedIn }: AppHeaderProps) {
             </span>
           </Link>
           <nav className="hidden items-center gap-4 sm:flex" aria-label="Primary">
-            <Link
-              href="/"
-              className={active === "home" ? linkActive : linkBase}
-            >
+            <Link href="/" className={active === "home" ? linkActive : linkBase}>
               Home
+            </Link>
+            <Link
+              href="/command"
+              className={active === "command" ? linkActive : linkBase}
+            >
+              Command
             </Link>
             <Link
               href="/evaluation"
@@ -92,6 +90,9 @@ export async function AppHeader({ active, signedIn }: AppHeaderProps) {
       >
         <Link href="/" className={active === "home" ? linkActive : linkBase}>
           Home
+        </Link>
+        <Link href="/command" className={active === "command" ? linkActive : linkBase}>
+          Command
         </Link>
         <Link
           href="/evaluation"
