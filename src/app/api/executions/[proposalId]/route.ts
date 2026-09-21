@@ -108,8 +108,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get workspace
-    const workspaceId = user.user_metadata?.workspace_id ?? "default";
+    // Resolve the user's actual workspace instead of a metadata/default fallback.
+    const workspaces = await listWorkspacesForUser();
+    const workspace = workspaces[0];
+    if (!workspace) {
+      return NextResponse.json({ error: "No workspace found" }, { status: 403 });
+    }
+    const workspaceId = workspace.id;
 
     // List execution attempts
     const executionService = createExecutionService(supabase, { workspaceId });
