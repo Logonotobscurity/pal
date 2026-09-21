@@ -34,6 +34,15 @@ export default function EvaluationPage() {
           </p>
         </div>
 
+        {results.status === "illustrative_target" && (
+          <div className="mb-8 rounded-xl border border-amber-700/50 bg-amber-950/30 px-5 py-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-400">
+              Illustrative targets — not a completed evaluation run
+            </p>
+            <p className="mt-2 text-sm text-neutral-300">{results.statusNote}</p>
+          </div>
+        )}
+
         <section className="mb-10">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
             Models compared
