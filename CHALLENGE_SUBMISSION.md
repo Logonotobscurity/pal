@@ -77,17 +77,17 @@ Unlike pure STT benchmarks, PAL measures **action quality**:
 
 ## Benchmark Results
 
-### Model Comparison (AfriSwitchCare Test Set, n=200)
+### Model Comparison — status: not yet run
+
+No completed evaluation run exists yet. Table shows the **planned** comparison shape and metric definitions, not measured results — see `docs/PAL_BENCHMARK.md` for methodology.
 
 | Model | Provider | WER | Code-Switch Accuracy | Critical Field Recall | Action Correctness | Overall Score |
 |-------|----------|-----|----------------------|----------------------|-------------------|---------------|
-| **Sahara v2.5** | Intron Health | **13.8%** | **93.5%** | **92.1%** | **83.9%** | **90.2%** |
-| Whisper Large-v3 | OpenAI | 15.7% | 82.3% | 78.2% | 68.4% | 76.9% |
-| AssemblyAI | AssemblyAI | 14.1% | 86.7% | 81.9% | 72.1% | 79.8% |
+| Sahara v2.5 | Intron Health | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+| Whisper Large-v3 | OpenAI | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+| AssemblyAI | AssemblyAI | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
 
-**Winner**: Sahara v2.5 outperforms on every metric
-
-**Key Finding**: Sahara's +11% code-switch advantage cascades through the pipeline, resulting in +13% better action correctness
+**Architecture-enforced guarantee** (true regardless of STT model, so it doesn't wait on the run above): 0% unsupervised side effects, 100% critical-field blocking on low-confidence extraction.
 
 ---
 
@@ -420,7 +420,7 @@ src/
 
 1. **Real Problem**: Code-switching breaks voice automation for African businesses
 2. **Novel Solution**: First voice-to-action system that always asks before executing
-3. **Sahara Advantage**: Demonstrated +11% code-switch superiority translates to +13% better action quality
+3. **Sahara Advantage**: Native code-switch metadata; full comparative accuracy run pending (methodology in `docs/PAL_BENCHMARK.md`)
 4. **Safety First**: Deterministic policy engine, approval gates, provenance chains
 5. **Production Ready**: 176 tests passing, full documentation, deployable architecture
 6. **Clear Vertical**: Fintech/SME ops with measurable ROI

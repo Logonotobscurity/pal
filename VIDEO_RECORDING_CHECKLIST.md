@@ -66,7 +66,7 @@ Follow `DEMO_SCRIPT.md` exactly:
 1. **Problem** (30s): "Code-switching breaks voice assistants"
 2. **Pipeline** (60s): "Sahara → Meaning → Plan → Policy → ASK"
 3. **Approval Demo** (60s): Navigate to /approvals, show card, click approve ⭐
-4. **Benchmark** (30s): "Sahara +11% code-switch, +13% better actions"
+4. **Benchmark** (30s): "Methodology defined; architecture guarantees zero unsupervised side effects regardless of STT model — full run pending"
 
 ---
 
@@ -165,9 +165,9 @@ npm run dev
 >
 > PAL shows the owner exactly what it wants to do. The owner can approve, edit, or reject. No generic assistant has this approval gate.
 >
-> [Show benchmark table]
+> [Show benchmark methodology]
 >
-> Our benchmark on AfriSwitchCare shows Sahara v2.5 outperforms Whisper by 11% on code-switch accuracy, which translates to 13% better action quality.
+> Our benchmark methodology compares Sahara against Whisper and AssemblyAI on code-switch accuracy and downstream action correctness — that run is still in progress, so I'm not going to quote numbers here. What's already guaranteed by architecture, independent of any model's accuracy, is zero unsupervised side effects.
 >
 > [Show GitHub]
 >

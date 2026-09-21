@@ -216,25 +216,20 @@
 
 ### 6. BENCHMARK RESULTS (30 seconds)
 
-**Show**: Benchmark table (from README or CHALLENGE_SUBMISSION.md)
+**Show**: `docs/PAL_BENCHMARK.md` methodology, or the "not yet run" table in README/CHALLENGE_SUBMISSION.md
 
 **Say**:
-> "We benchmarked PAL on AfriSwitchCare — 200 healthcare conversations with code-switching.
-> 
-> Sahara v2.5 outperformed Whisper and AssemblyAI:
-> - Code-switch accuracy: 93.5% vs 82% (Whisper) — that's +11%
-> - Action correctness: 84% vs 68% (Whisper) — that's +13%
-> 
-> Better transcription means better actions. That's why Sahara matters."
+> "We designed a benchmark to test that thesis — speech quality determines action quality —
+> comparing Sahara against Whisper and AssemblyAI on code-switch accuracy, critical field
+> recall, and downstream action correctness.
+>
+> The full evaluation run isn't complete yet, so I won't quote numbers that aren't measured.
+> The methodology is in the repo — docs/PAL_BENCHMARK.md — and what IS guaranteed by
+> architecture, not by any model's accuracy: zero unsupervised side effects, and 100%
+> blocking on low-confidence critical fields. That holds no matter which STT model you plug in."
 
 **Visual**:
-```
-| Model           | Code-Switch | Action Quality |
-|-----------------|-------------|----------------|
-| Sahara v2.5     | 93.5%       | 83.9%          |
-| Whisper Large-v3| 82.3%       | 68.4%          |
-| AssemblyAI      | 86.7%       | 72.1%          |
-```
+Show the methodology doc or the "pending" comparison table — do not show invented numbers.
 
 ---
 
@@ -265,7 +260,7 @@ If time is really tight:
 1. **Problem** (20s): Code-switching breaks voice assistants
 2. **Pipeline** (40s): Sahara → Meaning → Plan → Policy
 3. **The ASK** (40s): Show approval UI, click approve ⭐
-4. **Benchmark** (20s): Sahara +11% code-switch, +13% action quality
+4. **Benchmark** (20s): Methodology + architecture-enforced safety guarantees (run not yet complete)
 
 ---
 
@@ -332,9 +327,9 @@ Narrate over slides with same script.
 ## Key Messages to Hit
 
 ✅ **Code-switching** is the real-world problem  
-✅ **Sahara v2.5** handles it +11% better  
+✅ **Sahara v2.5** gives native code-switch metadata (benchmark run pending — don't quote numbers)  
 ✅ **Approval gate** makes PAL safe (vs auto-execution)  
-✅ **+13% better actions** because better transcription  
+✅ **Architecture guarantees** hold regardless of STT model — zero unsupervised side effects  
 ✅ **176 tests passing** — production-ready architecture
 
 ---

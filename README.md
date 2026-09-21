@@ -3,7 +3,7 @@
 **The first voice-to-action system for African code-switching that always asks before executing.**
 
 > 🏆 **Sahara CodeSwitch Africa Challenge Submission** — September 15, 2026  
-> 📊 **Benchmark**: Sahara v2.5 outperforms by +11% on code-switch accuracy → +13% better actions  
+> 📊 **Benchmark**: Methodology in `docs/PAL_BENCHMARK.md` — full evaluation run in progress, not yet complete  
 > 🔐 **Safety**: No LLM executes side effects — human approval required
 
 Built for the [Sahara CodeSwitch Africa Challenge](https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/).
@@ -39,7 +39,7 @@ Voice (code-switched) → Sahara STT → MeaningState → ActionPlan
 | Traditional Voice AI | PAL |
 |---------------------|-----|
 | ❌ Auto-executes | ✅ Always asks |
-| ❌ Poor code-switch handling | ✅ Sahara v2.5 (+11% accuracy) |
+| ❌ Poor code-switch handling | ✅ Sahara v2.5 (native code-switch metadata) |
 | ❌ Black box | ✅ Full provenance chain |
 | ❌ LLM can execute | ✅ No LLM has execution authority |
 
@@ -47,15 +47,17 @@ Voice (code-switched) → Sahara STT → MeaningState → ActionPlan
 
 ## 📊 Benchmark Results
 
-### Model Comparison (AfriSwitchCare, n=200 healthcare conversations)
+### Model Comparison — status: not yet run
+
+No completed evaluation run exists yet. The table below is the **planned** comparison shape, not measured results — see `docs/PAL_BENCHMARK.md` for the full methodology and metric definitions.
 
 | Model | WER | Code-Switch Accuracy | Critical Field Recall | Action Correctness |
 |-------|-----|---------------------|----------------------|-------------------|
-| **Sahara v2.5** | **13.8%** | **93.5%** | **92.1%** | **83.9%** |
-| Whisper Large-v3 | 15.7% | 82.3% | 78.2% | 68.4% |
-| AssemblyAI | 14.1% | 86.7% | 81.9% | 72.1% |
+| Sahara v2.5 | _pending_ | _pending_ | _pending_ | _pending_ |
+| Whisper Large-v3 | _pending_ | _pending_ | _pending_ | _pending_ |
+| AssemblyAI | _pending_ | _pending_ | _pending_ | _pending_ |
 
-**Winner**: Sahara v2.5 — +11% code-switch advantage cascades to +13% better action quality
+**Architecture-enforced, not ASR-dependent** (true regardless of which STT model is used): 0% unsupervised side effects, 100% critical-field blocking on low-confidence extraction.
 
 **Dataset**: [AfriSwitchCare](https://huggingface.co/datasets/intronhealth/AfriSwitchCare) — Healthcare conversations with code-switching (high-stakes domain)
 
