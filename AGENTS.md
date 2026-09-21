@@ -32,6 +32,30 @@ If docs and code disagree, flag it and fix the doc or the code — never silentl
 - Run the full test suite before declaring done; report failures honestly.
 - Match existing style; do not introduce new dependencies without stating why.
 
+## Verification
+
+Run the full gate before declaring done — these are the CI commands
+(`.github/workflows/ci.yml`, Node 24):
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run lint        # eslint .
+npm test            # vitest run
+npm run build       # next build
+```
+
+For route changes, also start the server and probe the endpoint; static checks
+do not catch request/response defects.
+
+Environment limits to state honestly rather than paper over:
+
+- **No Supabase credentials** in a sandbox session. Supabase-backed routes stop
+  at the config check and return a typed `EnvConfigError`; authenticated data
+  paths cannot be exercised.
+- Node in CI is 24; a local sandbox may differ.
+
+See `docs/PAL_AGENT_ASSISTANCE.md` for detail.
+
 ## Definition of done (per task)
 
 - [ ] Implementation matches `PAL_DOMAIN_MODEL.md`
