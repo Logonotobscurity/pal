@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createPalServerClient } from "@/lib/db/server";
 import { createExecutionService } from "@/services/execution/service";
 import { PolicyDbService } from "@/services/policy/db";
+import { listWorkspacesForUser } from "@/lib/auth/tenancy";
 
 type RouteContext = {
   params: Promise<{
@@ -36,7 +37,12 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // Get workspace (placeholder: from user metadata or default)
-    const workspaceId = user.user_metadata?.workspace_id ?? "default";
+    const workspaces = await listWorkspacesForUser();
+    const workspace = workspaces[0];
+    if (!workspace) {
+      return NextResponse.json({ error: "No workspace found" }, { status: 403 });
+    }
+    const workspaceId = workspace.id;
 
     // Get the proposal
     const policyDb = new PolicyDbService(supabase);
@@ -102,8 +108,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get workspace
-    const workspaceId = user.user_metadata?.workspace_id ?? "default";
+    // Resolve the user's actual workspace instead of a metadata/default fallback.
+    const workspaces = await listWorkspacesForUser();
+    const workspace = workspaces[0];
+    if (!workspace) {
+      return NextResponse.json({ error: "No workspace found" }, { status: 403 });
+    }
+    const workspaceId = workspace.id;
 
     // List execution attempts
     const executionService = createExecutionService(supabase, { workspaceId });

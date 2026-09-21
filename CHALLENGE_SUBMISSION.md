@@ -77,7 +77,7 @@ Unlike pure STT benchmarks, PAL measures **action quality**:
 
 ## Benchmark Results
 
-### Model Comparison — status: not yet run
+### Model Comparison — current status
 
 No completed evaluation run exists yet. Table shows the **planned** comparison shape and metric definitions, not measured results — see `docs/PAL_BENCHMARK.md` for methodology.
 

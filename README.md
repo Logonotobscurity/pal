@@ -47,17 +47,9 @@ Voice (code-switched) → Sahara STT → MeaningState → ActionPlan
 
 ## 📊 Benchmark Results
 
-### Model Comparison — status: not yet run
+### Model Comparison — current status
 
-No completed evaluation run exists yet. The table below is the **planned** comparison shape, not measured results — see `docs/PAL_BENCHMARK.md` for the full methodology and metric definitions.
-
-| Model | WER | Code-Switch Accuracy | Critical Field Recall | Action Correctness |
-|-------|-----|---------------------|----------------------|-------------------|
-| Sahara v2.5 | _pending_ | _pending_ | _pending_ | _pending_ |
-| Whisper Large-v3 | _pending_ | _pending_ | _pending_ | _pending_ |
-| AssemblyAI | _pending_ | _pending_ | _pending_ | _pending_ |
-
-**Architecture-enforced, not ASR-dependent** (true regardless of which STT model is used): 0% unsupervised side effects, 100% critical-field blocking on low-confidence extraction.
+No completed benchmark evaluation is published in this repository. The declared comparison is Sahara v2.5, Whisper Large-v3, and AfriSpeech-Whisper. The public report shows the methodology and pending status until measured run artifacts are committed.
 
 **Dataset**: [AfriSwitchCare](https://huggingface.co/datasets/intronhealth/AfriSwitchCare) — Healthcare conversations with code-switching (high-stakes domain)
 
@@ -371,7 +363,7 @@ npm run typecheck
 npm run lint
 ```
 
-**Current Status**: 176 tests passing ✅
+**Current Status**: test count must be verified by CI on the current commit
 
 ---
 

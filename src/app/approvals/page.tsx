@@ -5,7 +5,7 @@
  * Surface where PAL asks the owner before acting.
  */
 
-import { createClient } from "@/lib/supabase/server";
+import { listWorkspacesForUser } from "@/lib/auth/tenancy";
 import { ApprovalsList } from "@/components/approvals/approvals-list";
 import { AppHeader } from "@/components/layout/app-header";
 import { redirect } from "next/navigation";
@@ -13,17 +13,13 @@ import { redirect } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 export default async function ApprovalsPage() {
-  const supabase = await createClient();
+  const workspaces = await listWorkspacesForUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
+  if (workspaces.length === 0) {
+    redirect("/register");
   }
 
-  const workspaceId = user.user_metadata?.workspace_id ?? "default";
+  const workspace = workspaces[0]!;
 
   return (
     <>
@@ -42,7 +38,7 @@ export default async function ApprovalsPage() {
         </div>
 
         <div className="mx-auto max-w-6xl px-6 py-8">
-          <ApprovalsList workspaceId={workspaceId} />
+          <ApprovalsList workspaceId={workspace.id} />
         </div>
       </main>
     </>

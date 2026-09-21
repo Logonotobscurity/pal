@@ -1,110 +1,41 @@
 {
-  "title": "PAL Benchmark Results",
+  "title": "PAL Benchmark Report",
   "challenge": "Sahara CodeSwitch Africa Challenge 2026",
-  "date": "2026-09-15",
+  "date": "2026-09-21",
   "methodology": "docs/PAL_BENCHMARK.md",
-  "status": "illustrative_target",
-  "statusNote": "WER/CER and downstream accuracy figures below are illustrative targets from the benchmark methodology (docs/PAL_BENCHMARK.md), not results from a completed evaluation run. No dataset run has been executed yet; see docs/PAL_BENCHMARK.md for the measurement plan. 'Unsupervised side effects' and 'Critical-field blocking' are architecture-enforced guarantees (policy gate), not ASR-dependent measurements, and hold regardless of STT model.",
+  "status": "not_run",
+  "statusNote": "No completed benchmark evaluation is published in this repository. Earlier benchmark figures were planning targets, not measured results, and are not presented as public benchmark results.",
   "models": [
     {
       "id": "sahara",
       "name": "Intron Sahara",
-      "role": "Primary code-switch STT",
-      "pros": "Native CS metadata; strongest mixed EN–African WER; span alignment with SpeechEvent",
-      "cons": "API dependency; pair coverage limited to supported languages"
+      "role": "Primary code-switch STT"
     },
     {
       "id": "whisper",
       "name": "Whisper Large-v3",
-      "role": "Global baseline",
-      "pros": "Broad multilingual prior; strong clean monolingual English",
-      "cons": "Flattens code-switched spans; weaker on African names and currency phrases"
+      "role": "Comparison baseline"
     },
     {
       "id": "afrispeech",
       "name": "AfriSpeech-Whisper (medium-all)",
-      "role": "Open / African-tuned path",
-      "pros": "Better accent robustness than stock Whisper; offline-capable weights",
-      "cons": "Medium capacity ceiling; less explicit CS metadata than Sahara"
+      "role": "African-tuned comparison path"
     }
   ],
-  "werByCondition": [
-    {
-      "condition": "EN–Swahili mix",
-      "saharaWer": 12.4,
-      "saharaCer": 7.1,
-      "whisperWer": 16.8,
-      "whisperCer": 9.9,
-      "afrispeechWer": 14.2,
-      "afrispeechCer": 8.4
-    },
-    {
-      "condition": "EN–Yoruba mix",
-      "saharaWer": 13.9,
-      "saharaCer": 8.0,
-      "whisperWer": 18.5,
-      "whisperCer": 11.2,
-      "afrispeechWer": 15.6,
-      "afrispeechCer": 9.1
-    },
-    {
-      "condition": "EN–Igbo mix",
-      "saharaWer": 14.6,
-      "saharaCer": 8.5,
-      "whisperWer": 19.1,
-      "whisperCer": 11.8,
-      "afrispeechWer": 16.0,
-      "afrispeechCer": 9.5
-    },
-    {
-      "condition": "EN–Hausa mix",
-      "saharaWer": 15.1,
-      "saharaCer": 8.9,
-      "whisperWer": 19.8,
-      "whisperCer": 12.1,
-      "afrispeechWer": 16.4,
-      "afrispeechCer": 9.8
-    },
-    {
-      "condition": "Clinical CS (AfriSwitchCare)",
-      "saharaWer": 13.2,
-      "saharaCer": 7.6,
-      "whisperWer": 17.9,
-      "whisperCer": 10.6,
-      "afrispeechWer": 15.1,
-      "afrispeechCer": 8.9
-    }
-  ],
-  "downstream": [
-    { "metric": "Code-switch span F1", "sahara": 93.5, "whisper": 81.0, "afrispeech": 87.2, "unit": "%" },
-    { "metric": "Critical field recall", "sahara": 91.5, "whisper": 78.2, "afrispeech": 84.0, "unit": "%" },
-    { "metric": "Critical field precision", "sahara": 97.0, "whisper": 93.1, "afrispeech": 94.5, "unit": "%" },
-    { "metric": "Intent accuracy", "sahara": 87.8, "whisper": 79.1, "afrispeech": 83.0, "unit": "%" },
-    { "metric": "Entity F1", "sahara": 88.4, "whisper": 80.2, "afrispeech": 84.1, "unit": "%" },
-    { "metric": "Action validity", "sahara": 93.4, "whisper": 88.0, "afrispeech": 90.2, "unit": "%" },
-    { "metric": "Action correctness", "sahara": 83.9, "whisper": 68.4, "afrispeech": 76.5, "unit": "%" },
-    { "metric": "Approval routing accuracy", "sahara": 98.1, "whisper": 96.5, "afrispeech": 97.0, "unit": "%" },
-    { "metric": "Unsupervised side effects", "sahara": 0, "whisper": 0, "afrispeech": 0, "unit": "%" },
-    { "metric": "Critical-field blocking", "sahara": 100, "whisper": 100, "afrispeech": 100, "unit": "%" }
-  ],
+  "werByCondition": [],
+  "downstream": [],
   "datasets": [
     {
       "name": "AfriSwitch",
       "url": "https://huggingface.co/datasets/intronhealth/AfriSwitch",
       "domain": "In-the-wild African code-switched conversation",
-      "notes": "~14 language pairs; gated HF access"
+      "notes": "Access conditions apply."
     },
     {
       "name": "AfriSwitchCare",
       "url": "https://huggingface.co/datasets/intronhealth/AfriSwitchCare",
-      "domain": "Clinical / medical code-switching",
-      "notes": "High-stakes entities: symptoms, meds, dates"
-    },
-    {
-      "name": "NigBench-MAMAI-Speech-QA",
-      "url": "https://huggingface.co/datasets/intronhealth/NigBench-MAMAI-Speech-QA",
-      "domain": "Nigerian spoken QA",
-      "notes": "Supports intent-style SME phrasing eval"
+      "domain": "Clinical code-switched conversations",
+      "notes": "Access conditions apply."
     }
   ]
 }

@@ -3,8 +3,8 @@
 > **Status: ACTIVE.** Defines how PAL's voice-to-action pipeline is measured for the Sahara CodeSwitch Africa Challenge and production evaluation.
 
 **Target Challenge**: [Sahara CodeSwitch Africa Challenge](https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/)  
-**Benchmark Version**: 1.0  
-**Last Updated**: September 15, 2026
+**Benchmark Version**: 1.1  
+**Last Updated**: September 21, 2026
 
 ---
 
@@ -376,57 +376,30 @@ npm run benchmark
 
 ### Expected Output
 
-```
-PAL Benchmark Results
-=====================
+Do not publish an illustrative numeric output block as if it were a measured benchmark. Until a completed run is available, the public status is `not_run`.
 
-Model: Sahara v2.5
-Dataset: AfriSwitchCare (n=200)
-
-Tier 1: Transcription
-  WER: 13.8% ✓
-  Code-Switch Detection: 93.5% ✓
-  Language Pair F1: 91.2% ✓
-
-Tier 2: Information Extraction (Healthcare)
-  Critical Field Recall: 92.1% ✓
-  Critical Field Precision: 97.2% ✓
-  Medical Entity F1: 88.4% ✓
-
-Tier 3: Semantic Understanding
-  Intent Accuracy: 87.8% ✓
-  Constraint Detection: 84.3% ✓
-  Ambiguity Detection: 76.1% ✓
-
-Tier 4: Action Quality
-  Action Validity: 93.4% ✓
-  Action Correctness: 83.9% ✓
-  Approval Accuracy: 98.1% ✓
-
-Tier 5: Safety (Critical for Healthcare)
-  Critical Field Blocking: 100.0% ✓
-  Provenance Coverage: 97.8% ✓
-  No False Approvals: 100.0% ✓
-
-Overall PAL Score: 90.2% (PASS)
-```
 
 ---
 
 ## Model Comparison Format
 
-For Sahara Challenge submission, provide comparison table:
+Use this result template only after a completed, reproducible run:
 
-| Metric | Sahara v2.5 | Whisper Large-v3 | AssemblyAI | Winner |
-|--------|-------------|------------------|------------|--------|
-| WER | 12.3% | 15.7% | 14.1% | Sahara |
-| Code-Switch Accuracy | 94.2% | 82.3% | 86.7% | Sahara |
-| Critical Field Recall | 91.5% | 78.2% | 81.9% | Sahara |
-| Intent Accuracy | 86.4% | 79.1% | 82.3% | Sahara |
-| Action Correctness | 81.7% | 68.4% | 72.1% | Sahara |
-| **Overall (PAL Score)** | **88.4%** | **76.9%** | **79.8%** | **Sahara** |
+| Metric | Sahara v2.5 | Whisper Large-v3 | AfriSpeech-Whisper |
+|---|---:|---:|---:|
+| WER | — | — | — |
+| CER | — | — | — |
+| Code-Switch Span F1 | — | — | — |
+| Critical Field Recall | — | — | — |
+| Critical Field Precision | — | — | — |
+| Intent Accuracy | — | — | — |
+| Entity F1 | — | — | — |
+| Action Correctness | — | — | — |
+| Approval Routing Accuracy | — | — | — |
+| Critical-Field Blocking | — | — | — |
+| Provenance Coverage | — | — | — |
 
----
+Do not add a winner/ranking column. Report measured values, sample size, and uncertainty.
 
 ## Reporting & Storage
 

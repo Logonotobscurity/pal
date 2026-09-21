@@ -1,6 +1,6 @@
 # PAL Execution Plan
 
-> **Status: PLACEHOLDER.** Implementation phases, each broken into issue-sized tasks. Agents: take one task, complete it fully, update this file.
+> **Status: ACTIVE.** Implementation phases, each broken into issue-sized tasks. Agents: take one task, complete it fully, update this file.
 
 ## Phase 0 — Foundations
 
@@ -108,6 +108,7 @@
   - **Refs**: PAL_ARCHITECTURE.md §26-29; PAL_DOMAIN_MODEL.md ActionProposal, PolicyDecision
 
 - [x] Task 3.3: Approval UI and flow (Complete)
+  - Post-merge hardening on 2026-09-21: workspace-aware routing and real workspace resolution.
   - **Goal**: Implement approval dashboard and proposal viewing UI with real-time updates
   - **Scope**:
     - Pages: `src/app/approvals/page.tsx`, `src/app/approvals/[id]/page.tsx`, `src/app/approvals/[id]/edit/page.tsx`
