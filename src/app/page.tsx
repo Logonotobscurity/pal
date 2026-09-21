@@ -55,26 +55,16 @@ export default function HomePage() {
         </section>
 
         <div className="w-full max-w-2xl rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-6 py-5">
-          <p className="mb-3 text-center text-xs font-medium text-emerald-400">
-            Benchmark (AfriSwitchCare / mixed speech)
+          <p className="mb-2 text-center text-xs font-medium uppercase tracking-wide text-emerald-400">
+            Public benchmark report
           </p>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <p className="text-2xl font-bold text-emerald-400">93.5%</p>
-              <p className="text-xs text-neutral-400">Code-switch F1</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-emerald-400">83.9%</p>
-              <p className="text-xs text-neutral-400">Action correctness</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-emerald-400">0%</p>
-              <p className="text-xs text-neutral-400">Unsafe auto-actions</p>
-            </div>
-          </div>
+          <p className="text-center text-sm text-neutral-300">
+            Methodology is published. The completed comparison run is not yet published, so
+            PAL does not present planning targets as measured results.
+          </p>
           <p className="mt-3 text-center text-xs text-neutral-500">
-            <Link href="/evaluation" className="text-emerald-500 hover:underline">
-              Full results →
+            <Link href="/report" className="text-emerald-500 hover:underline">
+              Open public report →
             </Link>
           </p>
         </div>
