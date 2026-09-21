@@ -131,10 +131,11 @@ Risk Class: EXTERNAL_WRITE
 
 ## 🏗️ Architecture
 
-- **[AfriSwitch](https://huggingface.co/datasets/Swalah/AfriSwitch)** — Code-switched conversational speech (6 African language pairs)
-- **[AfriSwitchCare](https://huggingface.co/datasets/Swalah/AfriSwitchCare)** — Healthcare domain conversations with code-switching
+- **[AfriSwitch](https://huggingface.co/datasets/intronhealth/AfriSwitch)** — In-the-wild code-switched conversational speech (14 African languages + English, 54+ hours)
+- **[AfriSwitchCare](https://huggingface.co/datasets/intronhealth/AfriSwitchCare)** — Clinical code-switched doctor–patient conversations (8 languages)
+- **[NigBench-MAMAI-Speech-QA](https://huggingface.co/datasets/intronhealth/NigBench-MAMAI-Speech-QA)** — Large Nigerian maternal-health speech QA (~600 hours)
 
-Both datasets are gated on Hugging Face. Accept conditions to access.
+Datasets are gated on Hugging Face. Accept conditions to access.
 
 ### Evaluation Approach
 
@@ -178,8 +179,8 @@ cp .env.example .env.local
 # Add: SAHARA_API_SECRET, OPENAI_API_KEY, HUGGINGFACE_TOKEN
 
 # 3. Accept dataset conditions
-# Visit: https://huggingface.co/datasets/Swalah/AfriSwitch
-# Visit: https://huggingface.co/datasets/Swalah/AfriSwitchCare
+# Visit: https://huggingface.co/datasets/intronhealth/AfriSwitch
+# Visit: https://huggingface.co/datasets/intronhealth/AfriSwitchCare
 
 # 4. Run benchmarks
 npm run benchmark
