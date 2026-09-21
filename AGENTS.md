@@ -13,6 +13,7 @@ Before implementing anything:
 1. `docs/PAL_ARCHITECTURE.md` — system design and boundaries
 2. `docs/PAL_DOMAIN_MODEL.md` — schemas, state machines, invariants
 3. `docs/PAL_EXECUTION_PLAN.md` — current phase and task breakdown
+4. `docs/PAL_AGENT_ASSISTANCE.md` — verification gate, environment limits, working agreement
 
 If docs and code disagree, flag it and fix the doc or the code — never silently work around it.
 

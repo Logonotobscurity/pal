@@ -163,3 +163,8 @@ npm run build       # next build
   was widened with `| undefined`, which is backward compatible for callers.
 - No generated `.d.ts` files were committed; the project uses `noEmit: true`.
 - The only new declaration file (`src/types/env.d.ts`) is hand-written and ambient.
+
+## Related
+
+- `docs/PAL_AGENT_ASSISTANCE.md` — how agents verify changes here, the four-command
+  gate, and the sandbox's known limits (notably the absence of Supabase credentials).
