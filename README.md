@@ -137,11 +137,16 @@ Risk Class: EXTERNAL_WRITE
 
 Datasets are gated on Hugging Face. Accept conditions to access.
 
-### Evaluation Approach
+1. Transcription (WER, code-switch detection)
+2. Critical field extraction (name, amount, date)
+3. Semantic understanding (intent, entities)
+4. Action quality (correct constrained workflows)
+5. Safety (approval gate, provenance, zero unsupervised side effects)
 
-PAL's thesis: **Speech quality determines action quality.**
+Methodology: `docs/PAL_BENCHMARK.md`  
+Results table template: `SUBMISSION.md` §4
 
-We measure 5 tiers beyond transcription:
+### Model comparison (required ≥3 including Sahara)
 
 1. **Transcription**: WER, code-switch detection (baseline)
 2. **Information Extraction**: Critical field recall/precision
@@ -198,24 +203,16 @@ cat benchmarks/reports/comparison.md
 
 ### Responsible AI
 
-- ✅ Speaker consent (all datasets)
-- ✅ PII protection (redaction + anonymization)
-- ✅ Bias evaluation (all language pairs)
-- ✅ Safety-first (critical field blocking)
-- ✅ Human-in-loop (approval gates for consequential actions)
+See **SUBMISSION.md §5**. Summary: dataset consent terms; RLS tenancy; human approval for consequential actions; provenance chain; not for unsupervised high-risk automation.
 
-**Limitations**: Best performance on English-Swahili; degrades in high-noise; single-turn conversations.
+### Deliverables checklist
 
-**Intended Use**: Business automation, healthcare transcription with human review.
-
-### Deliverables
-
-- [x] Source code (public GitHub)
-- [x] Documentation (architecture + benchmark)
-- [ ] Benchmark results (Sahara vs ≥2 models)
-- [ ] Working prototype video
-- [ ] Responsible AI statement
-- [ ] Challenge submission
+- [x] Source code (this repo)
+- [x] Documentation (architecture + benchmark + SUBMISSION.md)
+- [x] Responsible AI statement (SUBMISSION.md)
+- [ ] Benchmark numeric table (fill §4 before/with submit)
+- [ ] Short prototype video
+- [ ] Form submission (https://forms.gle/RV43DXHAJCTYr98U7)
 
 ---
 
