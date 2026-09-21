@@ -5,7 +5,7 @@
  * Implements PAL_ARCHITECTURE.md §29: Approval Flow
  */
 
-import { createClient } from "@/lib/supabase/server";
+import { listWorkspacesForUser } from "@/lib/auth/tenancy";
 import { ProposalDetail } from "@/components/approvals/proposal-detail";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -20,16 +20,13 @@ type Props = {
 
 export default async function ProposalDetailPage({ params }: Props) {
   const { id } = await params;
-  const supabase = await createClient();
+  const workspaces = await listWorkspacesForUser();
 
-  // Check authentication
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
+  if (workspaces.length === 0) {
+    redirect("/register");
   }
+
+  const workspace = workspaces[0]!;
 
   return (
     <main className="min-h-screen bg-neutral-950">
@@ -57,7 +54,7 @@ export default async function ProposalDetailPage({ params }: Props) {
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-6 py-8">
-        <ProposalDetail proposalId={id} />
+        <ProposalDetail proposalId={id} workspaceId={workspace.id} />
       </div>
     </main>
   );
