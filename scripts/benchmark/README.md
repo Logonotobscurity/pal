@@ -143,18 +143,21 @@ Saved to: `benchmarks/runs/YYYY-MM-DD_model_afriswitch_care.json`
 ```markdown
 # PAL Benchmark Report
 
-**Model**: Sahara v2.5
+**Model**: <model>
 **Dataset**: AfriSwitchCare
-**Overall PAL Score**: 90.2%
+**Overall PAL Score**: <measured>
 
 ### Tier 1: Transcription Quality
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
-| WER | 13.8% | < 15% | ✓ |
-| Code-Switch Detection | 93.5% | > 90% | ✓ |
+| WER | <measured> | < 15% | |
+| Code-Switch Detection | <measured> | > 90% | |
 
 ...
 ```
+
+The block above is the report *template* the run emits. Values are filled in
+only after a completed run — no measured results are published yet.
 
 Saved to: `benchmarks/runs/YYYY-MM-DD_model_report.md`
 

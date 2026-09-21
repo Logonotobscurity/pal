@@ -186,9 +186,9 @@
 - [ ] Task 4.1: Dataset integration and benchmark infrastructure
   - **Goal**: Load AfriSwitch/AfriSwitchCare datasets and run PAL pipeline evaluation
   - **Scope**:
-    - Scripts: `benchmarks/load_datasets.py`, `benchmarks/evaluate_pipeline.py`
-    - Adapters: `benchmarks/adapters/sahara.ts`, `whisper.ts`, `assemblyai.ts`
-    - Reports: `benchmarks/reports/comparison.md`
+    - Scripts: `scripts/benchmark/load-dataset.py`, `scripts/benchmark/evaluate-pipeline.ts`
+    - Adapters: `src/providers/sahara.ts` (adapters under `scripts/benchmark/`)
+    - Reports: `scripts/benchmark/README.md`
     - Docs: `docs/PAL_BENCHMARK.md` (expanded ✓)
   - **Acceptance criteria**:
     - [ ] Load AfriSwitch dataset (gated HF access)

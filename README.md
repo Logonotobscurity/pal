@@ -59,12 +59,16 @@ PAL measures the **full pipeline**, not just transcription:
 
 | Tier | Metric | Score | Status |
 |------|--------|-------|--------|
-| 1. Transcription | WER, Code-Switch Detection | 93.5% | ✅ |
-| 2. Extraction | Critical Fields (names, amounts, dates) | 92.1% | ✅ |
-| 3. Semantic | Intent Accuracy | 87.8% | ✅ |
-| 4. Action | Workflow Correctness | 93.4% | ✅ |
-| 5. Safety | Never False Approvals | 100.0% | ✅ |
-| **Overall PAL Score** | **End-to-End Quality** | **90.2%** | ✅ **Production Ready** |
+| 1. Transcription | WER, Code-Switch Detection | _pending_ | ⏳ |
+| 2. Extraction | Critical Fields (names, amounts, dates) | _pending_ | ⏳ |
+| 3. Semantic | Intent Accuracy | _pending_ | ⏳ |
+| 4. Action | Workflow Correctness | _pending_ | ⏳ |
+| 5. Safety | Never False Approvals | 100.0% | ✅ Architecture-enforced |
+| **Overall PAL Score** | **End-to-End Quality** | _pending_ | ⏳ |
+
+Tiers 1–4 await a completed, reproducible run with stored artifacts. Tier 5 is
+an architecture property, not a measured result: the approval gate blocks every
+external side effect regardless of STT quality.
 
 **See**: `CHALLENGE_SUBMISSION.md` for complete benchmark methodology
 

@@ -59,7 +59,7 @@ OPENAI_MODEL=⚠️ Not configured (optional for MVP)
 - **Link Status**: Connected
 - **Authentication**: Logged in
 
-### ✅ Migrations Applied (7/7)
+### ✅ Migrations Applied (8 files present)
 All migrations successfully pushed to remote database:
 
 1. **0001_profiles_workspaces_rls.sql** ✅

@@ -168,3 +168,5 @@ npm run build       # next build
 
 - `docs/PAL_AGENT_ASSISTANCE.md` — how agents verify changes here, the four-command
   gate, and the sandbox's known limits (notably the absence of Supabase credentials).
+- `MARKDOWN_VALIDATION_REPORT.md` — audit of all 35 markdown files against the
+  implementation, including the unpublished-benchmark-number drift.

@@ -56,6 +56,10 @@ Confirmed Outcome
 | Critical Field Accuracy | 92.1% | 78.2% | **+13.9%** |
 | WER (Healthcare Domain) | 13.8% | 15.7% | **+1.9%** |
 
+> **Not measured results.** These were planning targets. No completed run is
+> published — see the Benchmark Results section below and
+> `docs/PAL_BENCHMARK.md`. Do not cite these figures.
+
 **Real Impact**: Better transcription → Better entity extraction → Fewer clarifications → Higher task completion
 
 ### 2. End-to-End Pipeline Quality

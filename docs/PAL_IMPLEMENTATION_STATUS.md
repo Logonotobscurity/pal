@@ -64,7 +64,7 @@ Safety invariant (always visible on home):
 | Real executors (WhatsApp, email, etc.) | §30–34 | Issue #3 — still mock |
 | Supabase Realtime broadcast for live transcripts | §8 | Issue #5 |
 | Activity / audit feed UI | Structure | Deferred |
-| Benchmark runner + AfriSwitch evaluation harness | benchmarks/ | Issue #5 / challenge path |
+| Benchmark run artifacts (dataset load + measured results) | `scripts/benchmark/` | Harness exists (`evaluate-pipeline.ts`, `load-dataset.py`, `metrics/`); no completed run published — see `MARKDOWN_VALIDATION_REPORT.md` |
 | Observability (structured logs + error tracking) | — | Issue #4 |
 | `agents/` top-level package layout | §9 | Logic lives under `services/` + `providers/` instead |
 | Command / voice frontend fully connected | — | Backend ready; mic UI not fully wired |

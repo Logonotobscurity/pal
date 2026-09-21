@@ -248,7 +248,7 @@ Show the methodology doc or the "pending" comparison table — do not show inven
 
 **Visual**:
 - Show GitHub repo link: github.com/Logonotobscurity/pal
-- Show "176 tests passing" badge
+- Show "183 tests passing" badge
 - End screen with PAL logo or tagline
 
 ---
@@ -330,7 +330,7 @@ Narrate over slides with same script.
 ✅ **Sahara v2.5** gives native code-switch metadata (benchmark run pending — don't quote numbers)  
 ✅ **Approval gate** makes PAL safe (vs auto-execution)  
 ✅ **Architecture guarantees** hold regardless of STT model — zero unsupervised side effects  
-✅ **176 tests passing** — production-ready architecture
+✅ **183 tests passing** — production-ready architecture
 
 ---
 

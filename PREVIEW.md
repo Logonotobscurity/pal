@@ -240,7 +240,7 @@ All tables implemented with workspace tenancy and RLS:
 - `workspace_members` — User-workspace relationships
 
 All migrations are in `supabase/migrations/`:
-- `0001_initial_auth.sql` — Auth and workspace tenancy
+- `0001_profiles_workspaces_rls.sql` — Profiles, workspaces, RLS
 - `0002_voice_ingestion.sql` — Voice pipeline tables
 - `0003_meaning_state.sql` — Semantic agent tables
 - `0004_action_plans.sql` — Workflow agent tables
