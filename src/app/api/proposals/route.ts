@@ -18,25 +18,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPalServerClient } from "@/lib/db/server";
 import { PolicyDbService } from "@/services/policy/db";
+import { parseListProposalsQuery } from "@/core/schemas/proposals-query";
 import { z } from "zod";
-
-const ListProposalsQuerySchema = z.object({
-  workspaceId: z.string().uuid(),
-  status: z.enum(["pending", "approved", "edited", "rejected", "expired", "executed", "failed"]).optional(),
-  riskClass: z.enum(["read", "draft", "external_write", "financial", "destructive"]).optional(),
-  limit: z.coerce.number().int().positive().max(100).optional(),
-});
 
 export async function GET(request: NextRequest) {
   try {
     // Parse query parameters
-    const searchParams = request.nextUrl.searchParams;
-    const query = ListProposalsQuerySchema.parse({
-      workspaceId: searchParams.get("workspaceId"),
-      status: searchParams.get("status"),
-      riskClass: searchParams.get("riskClass"),
-      limit: searchParams.get("limit"),
-    });
+    const query = parseListProposalsQuery(request.nextUrl.searchParams);
 
     // Create authenticated Supabase client
     const supabase = await createPalServerClient();
