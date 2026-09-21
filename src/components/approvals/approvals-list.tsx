@@ -28,7 +28,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
 
     async function loadProposals() {
       try {
-        const params = new URLSearchParams();
+        const params = new URLSearchParams({ workspaceId });
         if (filter !== "all") {
           params.append("status", filter);
         }
@@ -70,7 +70,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
 
   async function fetchProposals() {
     try {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({ workspaceId });
       if (filter !== "all") {
         params.append("status", filter);
       }
@@ -96,6 +96,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          workspaceId,
           reason: "Approved by user",
           version: currentVersion,
         }),
@@ -118,6 +119,7 @@ export function ApprovalsList({ workspaceId }: ApprovalsListProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          workspaceId,
           reason,
           version: currentVersion,
         }),
