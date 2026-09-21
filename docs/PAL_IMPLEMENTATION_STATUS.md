@@ -1,6 +1,6 @@
 # PAL — Current Implementation Status
 
-**Last updated:** 2026-09-15  
+**Last updated:** 2026-09-21  
 **Purpose:** Reduce doc drift (see issue #2). This file describes what exists in the repository *today* versus what `PAL_ARCHITECTURE.md` describes as the target.
 
 ---
@@ -47,11 +47,11 @@ Safety invariant (always visible on home):
 
 | Area | Notes |
 |------|--------|
-| OpenRouter as LLM gateway | Provider + route support in open PRs #8–#10; not yet on `main` |
-| ASK-centered product copy | Command, Approvals list/page/card/detail in open PRs #8–#11 |
-| AgentStatus component | Added in #10; not yet wired into Command Center live states |
-| CI pipeline | Added in open PRs #6/#7 |
-| Security policy doc | Replacing PLACEHOLDER in #6/#7 |
+| OpenRouter as LLM gateway | Provider + route support is merged into `main`; optional gateway configuration remains |
+| ASK-centered product copy | Command, Approvals list/page/card/detail are on `main` |
+| AgentStatus component | Added and used by the public `/command` demo |
+| CI pipeline | Present in `.github/workflows/ci.yml` |
+| Security policy doc | Active policy is present in `docs/PAL_SECURITY.md` |
 
 ---
 
