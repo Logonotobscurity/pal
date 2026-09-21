@@ -12,6 +12,7 @@ import type { ActionProposal } from "@/core/schemas/action-proposal";
 
 type ProposalDetailProps = {
   proposalId: string;
+  workspaceId: string;
 };
 
 type ProposalWithDecisions = ActionProposal & {
@@ -46,7 +47,7 @@ function statusLabel(status: ActionProposal["status"]): string {
   }
 }
 
-export function ProposalDetail({ proposalId }: ProposalDetailProps) {
+export function ProposalDetail({ proposalId, workspaceId }: ProposalDetailProps) {
   const [proposal, setProposal] = useState<ProposalWithDecisions | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +57,8 @@ export function ProposalDetail({ proposalId }: ProposalDetailProps) {
 
     async function loadProposal() {
       try {
-        const response = await fetch(`/api/proposals/${proposalId}`);
+        const params = new URLSearchParams({ workspaceId });
+        const response = await fetch(`/api/proposals/${proposalId}?${params.toString()}`);
         if (!response.ok) {
           throw new Error("Failed to fetch proposal");
         }
