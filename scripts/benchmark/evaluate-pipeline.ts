@@ -13,9 +13,6 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { SemanticAgent } from '@/services/semantic/agent';
-import { WorkflowAgent } from '@/services/workflow/agent';
-import { PolicyEngine } from '@/services/policy/engine';
 import type { SpeechEvent } from '@/core/schemas/speech-event';
 import type { MeaningState } from '@/core/schemas/meaning-state';
 import type { ActionPlan } from '@/core/schemas/action-plan';
@@ -30,7 +27,8 @@ interface BenchmarkSample {
   code_switches: Array<{ start: number; end: number; language: string }>;
   critical_fields: Array<{ field: string; value: string; type: string }>;
   expected_intent: string | null;
-  expected_action: any;
+  /** Shape varies per dataset domain; validated at the call site. */
+  expected_action: Record<string, unknown>;
   domain: string;
   metadata: {
     speaker_id?: string;
@@ -135,7 +133,7 @@ interface BenchmarkReport {
  * Mock transcription service for testing
  * In production, this would call Sahara, Whisper, or AssemblyAI
  */
-async function mockTranscribe(audioPath: string): Promise<SpeechEvent> {
+async function mockTranscribe(_audioPath: string): Promise<SpeechEvent> {
   // For now, return mock data
   // In real implementation, this would:
   // 1. Load audio file
@@ -181,7 +179,7 @@ async function mockTranscribe(audioPath: string): Promise<SpeechEvent> {
 /**
  * Evaluate critical field extraction
  */
-function evaluateCriticalFields(
+export function evaluateCriticalFields(
   meaningState: MeaningState,
   expectedFields: BenchmarkSample['critical_fields']
 ): { recall: number; precision: number } {
@@ -211,7 +209,7 @@ function evaluateCriticalFields(
 /**
  * Check if action proposal has complete provenance
  */
-function hasCompleteProvenance(
+export function hasCompleteProvenance(
   meaningState: MeaningState,
   actionProposal: ActionProposal
 ): boolean {
@@ -229,17 +227,19 @@ function hasCompleteProvenance(
   return true;
 }
 
-function extractCriticalFieldsFromProposal(proposal: ActionProposal): string[] {
+export function extractCriticalFieldsFromProposal(proposal: ActionProposal): string[] {
   // Extract critical field values from proposal exactPayload
   const fields: string[] = [];
-  const payload = proposal.exactPayload as any;
-  
-  // Look for common critical field patterns
-  if (payload?.recipient) fields.push(payload.recipient);
-  if (payload?.amount) fields.push(String(payload.amount));
-  if (payload?.customerId) fields.push(payload.customerId);
-  if (payload?.invoiceId) fields.push(payload.invoiceId);
-  
+  const payload = proposal.exactPayload;
+
+  if (payload && typeof payload === "object") {
+    const record = payload as Record<string, unknown>;
+    if (typeof record["recipient"] === "string") fields.push(record["recipient"]);
+    if (record["amount"] !== undefined) fields.push(String(record["amount"]));
+    if (typeof record["customerId"] === "string") fields.push(record["customerId"]);
+    if (typeof record["invoiceId"] === "string") fields.push(record["invoiceId"]);
+  }
+
   return fields;
 }
 
@@ -249,7 +249,7 @@ function extractCriticalFieldsFromProposal(proposal: ActionProposal): string[] {
 async function evaluateSample(
   sample: BenchmarkSample,
   modelName: string,
-  workspaceId: string
+  _workspaceId: string
 ): Promise<EvaluationResult> {
   const result: EvaluationResult = {
     sample_id: sample.id,

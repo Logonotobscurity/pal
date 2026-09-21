@@ -149,12 +149,12 @@ export class ExecutionDatabaseService {
     executionId: string;
     workspaceId: string;
     status: ExecutionAttempt["status"];
-    startedAt?: string;
-    completedAt?: string;
-    externalReference?: string;
+    startedAt?: string | undefined;
+    completedAt?: string | undefined;
+    externalReference?: string | undefined;
     outputPayload?: unknown;
-    errorCode?: string;
-    errorMessage?: string;
+    errorCode?: string | undefined;
+    errorMessage?: string | undefined;
   }): Promise<ExecutionAttempt> {
     const updates: Partial<DbExecutionAttempt> = {
       status: input.status,

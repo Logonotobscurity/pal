@@ -28,10 +28,10 @@ export type LLMConfig = {
 export type SemanticExtractionInput = {
   transcript: string;
   segments: Array<{ id: string; startMs: number; endMs: number; text: string }>;
-  languageSpans?: Array<{ start: number; end: number; language: string }>;
-  codeSwitch?: { detected: boolean; switchCount: number; density?: number; pairs: string[] };
-  conversationMemory?: string[];
-  businessContext?: string;
+  languageSpans?: Array<{ start: number; end: number; language: string }> | undefined;
+  codeSwitch?: { detected: boolean; switchCount: number; density?: number | undefined; pairs: string[] } | undefined;
+  conversationMemory?: string[] | undefined;
+  businessContext?: string | undefined;
 };
 
 export type SemanticExtractionOutput = {

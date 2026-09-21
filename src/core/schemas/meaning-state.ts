@@ -82,7 +82,7 @@ export function createMeaningState(input: {
   constraints?: Array<{ type: string; value: string; confidence: number }>;
   temporalRelations?: Array<{ type: "on" | "before" | "after" | "at" | "between" | "within"; value: string; confidence: number }>;
   ambiguities?: Array<{ field: string; description: string; confidence: number }>;
-  evidenceRefs?: Array<{ id: string; type: "audio" | "transcript" | "semantic" | "policy" | "execution" | "web" | "database"; source: string; uri?: string }>;
+  evidenceRefs?: Array<{ id: string; type: "audio" | "transcript" | "semantic" | "policy" | "execution" | "web" | "database"; source: string; uri?: string | undefined }>;
   confidence: { overall: number; fields?: Record<string, number> };
   contextSufficiency: "sufficient" | "insufficient" | "conflicting";
   model: { provider: string; model: string; version: string };
@@ -110,9 +110,9 @@ export const SemanticAgent = {
     providerVersion: string;
     transcript: { text: string; segments: Array<{ id: string; startMs: number; endMs: number; text: string }> };
     languageSpans?: Array<{ start: number; end: number; language: string }>;
-    codeSwitch?: { detected: boolean; switchCount: number; density?: number; pairs: string[] };
+    codeSwitch?: { detected: boolean; switchCount: number; density?: number | undefined; pairs: string[] };
     timing: { startedAt: string; endedAt: string };
-    provenance?: Array<{ id: string; type: string; source: string; uri?: string }>;
+    provenance?: Array<{ id: string; type: string; source: string; uri?: string | undefined }>;
     createdAt?: string;
   }): MeaningState {
     const text = event.transcript.text.toLowerCase();
@@ -159,7 +159,7 @@ export const SemanticAgent = {
             id: ref.id,
             type: (ref.type as "audio" | "transcript" | "semantic" | "policy" | "execution" | "web" | "database") ?? "transcript",
             source: ref.source,
-            uri: ref.uri,
+            ...(ref.uri === undefined ? {} : { uri: ref.uri }),
           }))
         : [{ id: `ev_${event.id}`, type: "transcript", source: event.id }],
       confidence: {

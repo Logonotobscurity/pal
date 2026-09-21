@@ -84,7 +84,7 @@ export function ProposalDetail({ proposalId, workspaceId }: ProposalDetailProps)
     return () => {
       cancelled = true;
     };
-  }, [proposalId]);
+  }, [proposalId, workspaceId]);
 
   if (loading) {
     return (

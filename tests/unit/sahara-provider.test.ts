@@ -6,6 +6,7 @@ import {
   createPcm16AudioChunk,
   type SaharaProtocolMessage,
   type SaharaSessionRecord,
+  type SaharaCommitInput,
 } from "@/providers/sahara";
 import type { SpeechEvent } from "@/core/schemas/speech-event";
 
@@ -69,7 +70,7 @@ describe("Sahara voice ingestion", () => {
           status: "accepted",
         } satisfies SaharaProtocolMessage;
       },
-      async commit(input: { sessionId: string; traceId: string; transcript: string; segments: Array<{ id: string; startMs: number; endMs: number; text: string }>; language?: string; codeSwitch?: { detected: boolean; switchCount: number; density?: number; pairs: string[] }; startedAt?: string; endedAt?: string; providerVersion: string }) {
+      async commit(input: SaharaCommitInput) {
         return {
           type: "final_transcript",
           sessionId: input.sessionId,

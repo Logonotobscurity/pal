@@ -27,8 +27,8 @@ import { createId } from "@/lib/utils/ids";
 
 export type SemanticAgentConfig = {
   extractor: OpenAISemanticExtractor;
-  conversationMemory?: string[];
-  businessContext?: string;
+  conversationMemory?: string[] | undefined;
+  businessContext?: string | undefined;
 };
 
 export type SemanticAgentLogger = {
@@ -43,7 +43,7 @@ export type SemanticAgentLogger = {
 export class SemanticAgent {
   private readonly extractor: OpenAISemanticExtractor;
   private readonly conversationMemory: string[];
-  private readonly businessContext?: string;
+  private readonly businessContext: string | undefined;
   private readonly logger: SemanticAgentLogger;
 
   constructor(config: SemanticAgentConfig, logger?: SemanticAgentLogger) {
@@ -134,7 +134,7 @@ export class SemanticAgent {
           id: ref.id,
           type: ref.type as "audio" | "transcript" | "semantic" | "policy" | "execution" | "web" | "database",
           source: ref.source,
-          uri: ref.uri,
+          ...(ref.uri === undefined ? {} : { uri: ref.uri }),
         })),
       ],
       confidence: {

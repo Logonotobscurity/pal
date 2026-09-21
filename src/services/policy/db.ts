@@ -86,7 +86,7 @@ export class PolicyDbService {
 
   async listProposalsByWorkspace(
     workspaceId: string,
-    options: { limit?: number; status?: string; riskClass?: string } = {},
+    options: { limit?: number | undefined; status?: string | undefined; riskClass?: string | undefined } = {},
   ): Promise<ActionProposal[]> {
     let query = this.supabase
       .from("action_proposals")

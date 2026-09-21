@@ -16,3 +16,14 @@ export async function getUser(): Promise<User | null> {
   } = await supabase.auth.getUser();
   return user;
 }
+
+/**
+ * Read the `workspace_id` claim from user metadata.
+ *
+ * `UserMetadata` is an open index signature, so the value is `any`; narrowing
+ * here keeps downstream workspace scoping a real `string`.
+ */
+export function readUserWorkspaceId(metadata: User["user_metadata"] | undefined): string {
+  const value = metadata?.["workspace_id"];
+  return typeof value === "string" ? value : "default";
+}

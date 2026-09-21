@@ -130,10 +130,10 @@ export default function HomePage() {
           <p className="mb-3 text-xs font-medium text-neutral-500">Example · English–Swahili</p>
           <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 p-4">
             <p className="font-mono text-base text-neutral-200 sm:text-lg">
-              "Send <span className="text-emerald-400">Ksh 5000</span> to{" "}
+              &quot;Send <span className="text-emerald-400">Ksh 5000</span> to{" "}
               <span className="text-emerald-400">Mama Wanjiku</span>{" "}
               <span className="text-sky-400">kesho</span> by{" "}
-              <span className="text-emerald-400">5pm</span>"
+              <span className="text-emerald-400">5pm</span>&quot;
             </p>
           </div>
           <div className="mt-4 grid gap-2 text-sm text-neutral-400 sm:grid-cols-2">

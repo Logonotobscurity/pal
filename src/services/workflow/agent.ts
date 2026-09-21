@@ -27,7 +27,7 @@ import { createId } from "@/lib/utils/ids";
 
 export type WorkflowAgentConfig = {
   generator: OpenAIWorkflowGenerator;
-  businessContext?: string;
+  businessContext?: string | undefined;
 };
 
 export type WorkflowAgentLogger = {
@@ -41,7 +41,7 @@ export type WorkflowAgentLogger = {
  */
 export class WorkflowAgent {
   private readonly generator: OpenAIWorkflowGenerator;
-  private readonly businessContext?: string;
+  private readonly businessContext: string | undefined;
   private readonly logger: WorkflowAgentLogger;
 
   constructor(config: WorkflowAgentConfig, logger?: WorkflowAgentLogger) {
@@ -161,7 +161,7 @@ export class WorkflowAgent {
           id: ref.id,
           type: ref.type,
           source: ref.source,
-          uri: ref.uri,
+          ...(ref.uri === undefined ? {} : { uri: ref.uri }),
         })),
       ],
       rationaleSummary: generation.rationaleSummary,

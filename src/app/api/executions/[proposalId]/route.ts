@@ -21,7 +21,7 @@ type RouteContext = {
  * POST /api/executions/:proposalId
  * Execute an approved proposal
  */
-export async function POST(request: NextRequest, context: RouteContext) {
+export async function POST(_request: NextRequest, context: RouteContext) {
   const { proposalId } = await context.params;
   
   try {
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
  * GET /api/executions/:proposalId
  * Get execution attempts for a proposal
  */
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   const { proposalId } = await context.params;
   
   try {

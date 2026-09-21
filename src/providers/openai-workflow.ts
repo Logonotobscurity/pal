@@ -26,7 +26,7 @@ export type WorkflowLLMConfig = {
 
 export type WorkflowGenerationInput = {
   meaningState: MeaningState;
-  businessContext?: string;
+  businessContext?: string | undefined;
   availableCapabilities: Capability[];
 };
 

@@ -63,16 +63,16 @@ export function createSpeechEvent(input: {
   provider: "sahara" | "assemblyai" | "whisper" | "other";
   providerVersion: string;
   transcript: { text: string; segments: Array<{ id: string; startMs: number; endMs: number; text: string }> };
-  languageSpans?: Array<{ start: number; end: number; language: string }>;
+  languageSpans?: Array<{ start: number; end: number; language: string }> | undefined;
   codeSwitch: {
     detected: boolean;
     switchCount: number;
-    density?: number;
+    density?: number | undefined;
     pairs: string[];
   };
   timing: { startedAt: string; endedAt: string };
-  provenance?: Array<{ id: string; type: "audio" | "transcript" | "semantic" | "policy" | "execution"; source: string; uri?: string }>;
-  createdAt?: string;
+  provenance?: Array<{ id: string; type: "audio" | "transcript" | "semantic" | "policy" | "execution"; source: string; uri?: string | undefined }> | undefined;
+  createdAt?: string | undefined;
 }): SpeechEvent {
   return SpeechEventSchema.parse({
     ...input,

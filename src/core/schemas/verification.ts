@@ -16,12 +16,12 @@ export type VerificationResult = z.infer<typeof VerificationResultSchema>;
 export function createVerificationResult(input: {
   executionAttemptId: string;
   verified: boolean;
-  status?: "verified" | "failed" | "unverified";
-  externalReference?: string;
-  expectedOutcome?: string;
-  actualOutcome?: string;
-  notes?: string;
-  checkedAt?: string;
+  status?: "verified" | "failed" | "unverified" | undefined;
+  externalReference?: string | undefined;
+  expectedOutcome?: string | undefined;
+  actualOutcome?: string | undefined;
+  notes?: string | undefined;
+  checkedAt?: string | undefined;
 }): VerificationResult {
   return VerificationResultSchema.parse({
     ...input,

@@ -35,11 +35,11 @@ export class VerificationDatabaseService {
     executionId: string;
     verified: boolean;
     status: VerificationResult["status"];
-    externalReference?: string;
-    expectedOutcome?: string;
-    actualOutcome?: string;
-    notes?: string;
-    checkedAt?: string;
+    externalReference?: string | undefined;
+    expectedOutcome?: string | undefined;
+    actualOutcome?: string | undefined;
+    notes?: string | undefined;
+    checkedAt?: string | undefined;
   }): Promise<VerificationResult> {
     const { data, error } = await this.supabase
       .from("verification_results")

@@ -66,17 +66,17 @@ export function createActionProposal(input: {
   actionPlanId: string;
   actionType: string;
   exactPayload: unknown;
-  destination?: string;
-  recipient?: string;
-  scheduledFor?: string;
+  destination?: string | undefined;
+  recipient?: string | undefined;
+  scheduledFor?: string | undefined;
   riskClass: "read" | "draft" | "external_write" | "financial" | "destructive";
-  evidenceRefs?: Array<{ id: string; type: string; source: string; uri?: string }>;
+  evidenceRefs?: Array<{ id: string; type: string; source: string; uri?: string | undefined }> | undefined;
   status: "pending" | "approved" | "edited" | "rejected" | "expired" | "executed" | "failed";
-  policyDecision?: z.infer<typeof PolicyDecisionSchema>;
-  version?: number;
-  createdAt?: string;
-  updatedAt?: string;
-  expiresAt?: string;
+  policyDecision?: z.infer<typeof PolicyDecisionSchema> | undefined;
+  version?: number | undefined;
+  createdAt?: string | undefined;
+  updatedAt?: string | undefined;
+  expiresAt?: string | undefined;
 }): ActionProposal {
   const now = new Date().toISOString();
   return ActionProposalSchema.parse({
@@ -109,10 +109,10 @@ export function bindPolicyDecisionToProposal(
 export function createApprovalWorkflow(input: {
   proposalId: string;
   proposalStatus: "pending" | "approved" | "edited" | "rejected" | "expired" | "executed" | "failed";
-  policyDecision?: z.infer<typeof PolicyDecisionSchema>;
-  requiresApproval?: boolean;
-  actorId?: string;
-  reason?: string;
+  policyDecision?: z.infer<typeof PolicyDecisionSchema> | undefined;
+  requiresApproval?: boolean | undefined;
+  actorId?: string | undefined;
+  reason?: string | undefined;
 }): ApprovalWorkflow {
   const state = input.proposalStatus === "approved" ? "approved" : input.proposalStatus === "rejected" ? "rejected" : input.proposalStatus === "edited" ? "edited" : "pending";
   const decidedAt = new Date().toISOString();

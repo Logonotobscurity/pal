@@ -39,7 +39,7 @@ export type SaharaSessionRecord = {
   updatedAt: string;
   expiresAt: string;
   lastSequence: number;
-  partialTranscript?: string;
+  partialTranscript?: string | undefined;
 };
 
 const SaharaAudioAckSchema = z.object({
@@ -199,6 +199,18 @@ export type SaharaLogger = {
   error: (message: string, meta?: Record<string, unknown>) => void;
 };
 
+export type SaharaCommitInput = {
+  sessionId: string;
+  traceId: string;
+  transcript: string;
+  segments: Array<{ id: string; startMs: number; endMs: number; text: string }>;
+  language?: string | undefined;
+  codeSwitch?: { detected: boolean; switchCount: number; density?: number | undefined; pairs: string[] } | undefined;
+  startedAt?: string | undefined;
+  endedAt?: string | undefined;
+  providerVersion: string;
+};
+
 export type SaharaProvider = {
   startSession: (input: {
     traceId: string;
@@ -220,17 +232,7 @@ export type SaharaProvider = {
     channels: number;
     bitDepth: number;
   }) => Promise<SaharaProtocolMessage>;
-  commit: (input: {
-    sessionId: string;
-    traceId: string;
-    transcript: string;
-    segments: Array<{ id: string; startMs: number; endMs: number; text: string }>;
-    language?: string;
-    codeSwitch?: { detected: boolean; switchCount: number; density?: number; pairs: string[] };
-    startedAt?: string;
-    endedAt?: string;
-    providerVersion: string;
-  }) => Promise<SaharaProtocolMessage>;
+  commit: (input: SaharaCommitInput) => Promise<SaharaProtocolMessage>;
 };
 
 export class SaharaVoicePipeline {
@@ -359,10 +361,10 @@ export class SaharaVoicePipeline {
       traceId: string;
       transcript: string;
       segments: Array<{ id: string; startMs: number; endMs: number; text: string }>;
-      language?: string;
-      codeSwitch?: { detected: boolean; switchCount: number; density?: number; pairs: string[] };
-      startedAt?: string;
-      endedAt?: string;
+      language?: string | undefined;
+      codeSwitch?: { detected: boolean; switchCount: number; density?: number | undefined; pairs: string[] } | undefined;
+      startedAt?: string | undefined;
+      endedAt?: string | undefined;
     },
   ): Promise<SpeechEvent> {
     const session = this.requireSession(sessionId);

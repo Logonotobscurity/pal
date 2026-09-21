@@ -12,7 +12,7 @@
  */
 
 import { WebSocket } from "ws";
-import type { SaharaProvider, SaharaProtocolMessage, SaharaLogger } from "./sahara";
+import type { SaharaProvider, SaharaProtocolMessage, SaharaLogger, SaharaCommitInput } from "./sahara";
 
 export type SaharaWebSocketConfig = {
   endpoint: string;
@@ -198,17 +198,7 @@ export class SaharaWebSocketAdapter implements SaharaProvider {
     });
   }
 
-  async commit(input: {
-    sessionId: string;
-    traceId: string;
-    transcript: string;
-    segments: Array<{ id: string; startMs: number; endMs: number; text: string }>;
-    language?: string;
-    codeSwitch?: { detected: boolean; switchCount: number; density?: number; pairs: string[] };
-    startedAt?: string;
-    endedAt?: string;
-    providerVersion: string;
-  }): Promise<SaharaProtocolMessage> {
+  async commit(input: SaharaCommitInput): Promise<SaharaProtocolMessage> {
     await this.ensureConnected();
 
     return new Promise((resolve, reject) => {

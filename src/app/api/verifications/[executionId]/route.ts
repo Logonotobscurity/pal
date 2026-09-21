@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createPalServerClient } from "@/lib/db/server";
 import { createVerificationAgent } from "@/services/verification/agent";
 import { ExecutionDatabaseService } from "@/services/execution/db";
+import { readUserWorkspaceId } from "@/lib/auth/session";
 
 type RouteContext = {
   params: Promise<{
@@ -20,7 +21,7 @@ type RouteContext = {
  * POST /api/verifications/:executionId
  * Verify an execution attempt
  */
-export async function POST(request: NextRequest, context: RouteContext) {
+export async function POST(_request: NextRequest, context: RouteContext) {
   const { executionId } = await context.params;
   
   try {
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     }
 
     // Get workspace
-    const workspaceId = user.user_metadata?.workspace_id ?? "default";
+    const workspaceId = readUserWorkspaceId(user.user_metadata);
 
     // Get the execution attempt
     const executionDb = new ExecutionDatabaseService(supabase);
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
  * GET /api/verifications/:executionId
  * Get verification results for an execution
  */
-export async function GET(request: NextRequest, context: RouteContext) {
+export async function GET(_request: NextRequest, context: RouteContext) {
   const { executionId } = await context.params;
   
   try {
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     }
 
     // Get workspace
-    const workspaceId = user.user_metadata?.workspace_id ?? "default";
+    const workspaceId = readUserWorkspaceId(user.user_metadata);
 
     // List verification results
     const verificationAgent = createVerificationAgent(supabase, { workspaceId });
