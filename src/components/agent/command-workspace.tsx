@@ -51,9 +51,11 @@ export function CommandWorkspace() {
   function decide(next: "approved" | "rejected") {
     setDecision(next);
     setStage(next === "approved" ? "acting" : "idle");
+
     if (next === "approved") {
-      const id = window.setTimeout(() => setStage("done"), 1200);
-      timers.current.push(id);
+      const verifyId = window.setTimeout(() => setStage("verifying"), 1200);
+      const doneId = window.setTimeout(() => setStage("done"), 2400);
+      timers.current.push(verifyId, doneId);
     }
   }
 
@@ -82,6 +84,11 @@ export function CommandWorkspace() {
             {p.split(" ").slice(0, 4).join(" ")}…
           </button>
         ))}
+      </div>
+
+      <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 px-3 py-2 text-xs text-neutral-500">
+        Demo mode · no external side effects are sent. Approval still controls the
+        Act stage, and PAL visibly enters Verify before finishing.
       </div>
 
       <button
@@ -121,7 +128,8 @@ export function CommandWorkspace() {
 
       {decision === "approved" ? (
         <p className="text-sm text-green-400">
-          Approved. Acting, then verifying. No live side effects in this demo.
+          Approved. PAL is acting, then verifying the outcome. No live side effects are
+          sent by this public demo.
         </p>
       ) : null}
       {decision === "rejected" ? (
