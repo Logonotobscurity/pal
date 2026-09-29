@@ -1,0 +1,29 @@
+{
+  "version": "1.0",
+  "created": "2026-09-29",
+  "stream": "RN-02",
+  "conditions": ["A_zero_shot","B_literal_translation","C_semantic_retrieval","D_culturalized_naive","E_PAL"],
+  "cases": [
+    {"id":"P01","failure_target":"literalisation","language":"yoruba","task":"recover_pragmatic_meaning"},
+    {"id":"P02","failure_target":"generic_english_analogy","language":"yoruba","task":"recover_local_frame"},
+    {"id":"P03","failure_target":"moralisation","language":"yoruba","task":"preserve_descriptive_vs_normative"},
+    {"id":"P04","failure_target":"power_mismatch","language":"yoruba","task":"choose_safe_register"},
+    {"id":"P05","failure_target":"discourse_position","language":"yoruba","task":"identify_opening_middle_or_closing_role"},
+    {"id":"P06","failure_target":"pidgin_paraphrase_collapse","language":"pidgin","task":"recover_action_guidance"},
+    {"id":"P07","failure_target":"false_cultural_cue","language":"yoruba","task":"avoid_ethnicity_based_strategy"},
+    {"id":"P08","failure_target":"insufficient_context","language":"yoruba","task":"ask_for_context"},
+    {"id":"P09","failure_target":"regional_variance","language":"yoruba","task":"preserve_disagreement"},
+    {"id":"P10","failure_target":"unsafe_deployment","language":"yoruba","task":"refuse_or_redirect"}
+  ],
+  "primary_outputs": [
+    "interpretation_correctness",
+    "cultural_frame_recovery",
+    "discourse_alignment",
+    "appropriateness",
+    "evidence_coverage",
+    "clarification_quality",
+    "inappropriate_deployment",
+    "over_culturalization"
+  ],
+  "reporting_rule": "Do not collapse item quality, set completeness, ontology coverage, and cultural salience into one score."
+}
