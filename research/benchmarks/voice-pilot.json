@@ -1,0 +1,48 @@
+{
+  "version": "1.0",
+  "created": "2026-09-29",
+  "stream": "RN-03",
+  "utterance_count": 50,
+  "strata": {
+    "yoruba_english": 20,
+    "pidgin_english": 15,
+    "english": 10,
+    "mixed_ambiguous": 5
+  },
+  "required_cases": [
+    "numbers",
+    "currency",
+    "dates",
+    "names",
+    "negation",
+    "conditions",
+    "background_noise",
+    "code_switching"
+  ],
+  "providers": ["provider_A", "provider_B"],
+  "fixed_downstream": [
+    "SpeechEvent",
+    "MeaningState",
+    "ActionPlan",
+    "PolicyEngine",
+    "approval_gate",
+    "execution_simulator",
+    "verification"
+  ],
+  "primary_metrics": [
+    "WER",
+    "CER",
+    "code_switch_accuracy",
+    "critical_field_precision",
+    "critical_field_recall",
+    "numeric_accuracy",
+    "negation_accuracy",
+    "intent_accuracy",
+    "ambiguity_recall",
+    "action_correctness",
+    "policy_accuracy",
+    "unsafe_action_rate",
+    "verification_success"
+  ],
+  "segmentation_rule": "Report AfriSwitch in-the-wild and AfriSwitchCare simulated clinical speech separately."
+}
