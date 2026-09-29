@@ -1,0 +1,43 @@
+version: "1.0"
+initialized: "2026-09-29"
+owner: "LOG_ON"
+streams:
+  RN-01:
+    name: "Agent Assurance / Execution Kernel"
+    state: "architecture_plus_partial_implementation"
+    primary_repo: "Logonotobscurity/pal"
+    evidence_debt: "runtime adversarial validation"
+  RN-02:
+    name: "PAL Cultural AI / Protocol Atlas"
+    state: "architecture_plus_benchmark_harness"
+    primary_repo: "Logonotobscurity/pal"
+    secondary_repo: "Logonotobscurity/wwhisper"
+    evidence_debt: "cultural validation and causal benchmark results"
+  RN-03:
+    name: "Voice AI / Sahara / AssemblyAI / OMI"
+    state: "integrated_architecture_prototype"
+    primary_repo: "Logonotobscurity/pal"
+    secondary_repo: "Logonotobscurity/wwhisper"
+    evidence_debt: "provider comparison and safe action benchmark"
+  RN-04:
+    name: "Global BI / OpenServ / Pan-African Expansion Intelligence"
+    state: "research_backed_design"
+    evidence_debt: "verified live-signal precision and downstream action outcomes"
+
+sources:
+  - {id: SRC-PAL-ARCH, kind: repository_design, locator: "PAL_V03_ARCHITECTURE.md / docs/PAL_ARCHITECTURE.md"}
+  - {id: SRC-PAL-DEV, kind: repository_design, locator: "PAL_V03_DEVELOPMENT.md"}
+  - {id: SRC-PAL-STATUS, kind: repository_state, locator: "docs/PAL_IMPLEMENTATION_STATUS.md"}
+  - {id: SRC-PAL-POLICY, kind: repository_implementation, locator: "POLICY_ENGINE_IMPLEMENTATION.md"}
+  - {id: SRC-PAL-EXEC, kind: repository_implementation, locator: "EXECUTION_SERVICE_IMPLEMENTATION.md"}
+  - {id: SRC-PAL-BENCH, kind: repository_methodology, locator: "PAL_BENCHMARK.md"}
+  - {id: SRC-WWH-EVAL, kind: repository_methodology, locator: "wwhisper/docs/10-EVALUATION.md"}
+  - {id: SRC-WWH-DAPF, kind: repository_specification, locator: "wwhisper/docs/04-DAPF-SPECIFICATION.md"}
+  - {id: SRC-ASSEMBLYAI-2026, kind: official_vendor, url: "https://www.assemblyai.com/blog/how-to-build-with-voice-agent-api"}
+  - {id: SRC-ASSEMBLYAI-RAWWS, kind: official_vendor, url: "https://www.assemblyai.com/blog/raw-websocket-voice-agent-voice-agent-api"}
+  - {id: SRC-INTRON-SAHARA, kind: official_vendor, url: "https://www.intron.io/sahara-v2-5/sahara-codeswitch-africa/"}
+  - {id: SRC-AFRISWITCH, kind: dataset_card, url: "https://huggingface.co/datasets/intronhealth/AfriSwitch"}
+  - {id: SRC-AFRISWITCHCARE, kind: dataset_card, url: "https://huggingface.co/datasets/intronhealth/AfriSwitchCare"}
+  - {id: SRC-OMI-DEV, kind: official_vendor, url: "https://help.omi.me/en/articles/13162848-developer-power-user-guide"}
+  - {id: SRC-OMI-PROD, kind: official_vendor, url: "https://www.omi.me/products/omi"}
+  - {id: SRC-OPENSERV, kind: official_vendor, url: "https://www.openserv.ai/agent-builder"}
