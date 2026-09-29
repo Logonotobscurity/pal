@@ -8,6 +8,17 @@
 
 ---
 
+## Dataset contract correction — 2026-09-29
+
+**AfriSwitchCare is an evaluation-only benchmark with a single `test` split.** The current dataset card does not document a train/test split or `speaker_id` fields for constructing one.
+
+Therefore:
+- do not create or assume a train/test split from AfriSwitchCare;
+- treat it as an external evaluation benchmark;
+- use a separately documented development dataset if training/development evaluation is required.
+
+Source: https://huggingface.co/datasets/intronhealth/AfriSwitchCare
+
 ## Overview
 
 PAL's benchmark measures the **full transformation quality** from code-switched speech to actionable business outcomes, not just transcription accuracy.
@@ -142,6 +153,8 @@ PAL must fail safely:
 ## Evaluation Protocol
 
 ### Phase 1: Dataset Preparation
+
+> **Execution gate:** the historical preparation pseudocode below assumes train/test fields that are not part of the current AfriSwitchCare contract. It must be rewritten before execution.
 
 ```python
 from datasets import load_dataset
