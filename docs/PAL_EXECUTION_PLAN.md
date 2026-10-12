@@ -191,6 +191,7 @@
     - Reports: `scripts/benchmark/README.md`
     - Docs: `docs/PAL_BENCHMARK.md` (expanded ✓)
   - **Acceptance criteria**:
+    - [x] Add isolated Langa-hosted N-ATLaS ASR adapter with explicit language selection and unit tests (adapter is not yet wired into the end-to-end evaluator)
     - [ ] Load AfriSwitch dataset (gated HF access)
     - [ ] Load AfriSwitchCare dataset (gated HF access)
     - [ ] Speaker-disjoint train/test split validation
