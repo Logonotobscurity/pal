@@ -221,6 +221,29 @@ node scripts/benchmark/compare-models.js \
   benchmarks/runs/*_assemblyai_*.json
 ```
 
+## Langa-hosted N-ATLaS ASR adapter
+
+A typed benchmark adapter is available at `adapters/langa-natlas.ts`. It calls
+`POST /v1/audio/transcriptions`, requires an explicit language code
+(`yo`, `ha`, `ig`, or `en`), enforces the 25 MB input limit, and returns
+provider/model metadata with the transcript.
+
+Configure these server-side environment variables before invoking the adapter:
+
+```bash
+LANGA_NATLAS_API_KEY=your_langa_key
+# Optional; defaults to https://langa.julimer.com/v1
+LANGA_NATLAS_BASE_URL=https://langa.julimer.com/v1
+```
+
+Never commit the key or expose it through a `NEXT_PUBLIC_*` variable. Unit
+coverage lives in `tests/unit/langa-natlas-adapter.test.ts`.
+
+**Scope limitation:** this adapter is not yet wired into
+`evaluate-pipeline.ts`; no N-ATLaS benchmark scores are produced by merely
+adding this file. The evaluator currently needs a real transcription-to-
+SpeechEvent integration before results can be treated as measured evidence.
+
 ## Troubleshooting
 
 ### "Dataset not found"
