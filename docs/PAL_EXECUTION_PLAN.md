@@ -242,3 +242,27 @@
 **Depends on:** Task x.y
 **Refs:** PAL_ARCHITECTURE.md §, PAL_DOMAIN_MODEL.md §
 ```
+
+
+## Phase 5 — Companion & Action Product Integration
+
+The product-level target, repository gap analysis, architecture boundaries, and staged roadmap are defined in [`docs/COMPANION_ACTION_INTEGRATION_PLAN.md`](./COMPANION_ACTION_INTEGRATION_PLAN.md). Do not implement all future phases together; select one issue-sized task per branch.
+
+- [ ] Task 5.1: Meaning Gate contract (first implementation task)
+  - **Goal**: Require an evidence-backed, user-language restatement of the exact action before consequential approval.
+  - **Scope**:
+    - Domain contract for selected confirmation language, restatement, evidence/version binding, and confirmation status.
+    - Approval UI with edit, clarify, cancel, and confirm states.
+    - Payload-version invalidation so edits cannot reuse stale confirmation.
+    - Persisted approval/audit event and unit/integration tests.
+    - Update `docs/PAL_DOMAIN_MODEL.md` and add a migration if persisted fields require it.
+  - **Acceptance criteria**:
+    - [ ] Missing or stale meaning confirmation blocks consequential approval.
+    - [ ] The user can inspect the original quote/evidence and the exact payload.
+    - [ ] Editing any consequential field invalidates the previous confirmation.
+    - [ ] Language is explicit; no unsupported language is inferred or silently translated.
+    - [ ] Confirmation is bound to workspace, actor, payload version/hash, and timestamp.
+    - [ ] No external messaging or money movement is enabled by this task.
+    - [ ] Unit, integration, typecheck, lint, and build gates pass, or blockers are reported precisely.
+  - **Depends on**: Existing Tasks 3.1–3.5.
+  - **Refs**: `docs/COMPANION_ACTION_INTEGRATION_PLAN.md`, `docs/PAL_SECURITY.md`, `docs/PAL_DOMAIN_MODEL.md`
