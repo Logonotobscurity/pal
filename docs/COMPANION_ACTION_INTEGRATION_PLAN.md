@@ -255,3 +255,14 @@ Every new service requires an architecture decision record, threat-model update,
 ## 12. Immediate next task
 
 **A2 — Meaning Gate contract** is the first product implementation task after this architecture reconciliation. It directly closes the gap between today's exact-payload approval UI and the proposed requirement that the user's intent be restated in their chosen language before consequential actions. It must be designed so that changing the payload invalidates the prior confirmation, and confirmation itself is auditable. No funds or external messages should be enabled as part of A2.
+
+
+## 13. External references checked
+
+These public references were reviewed while drafting this plan. They supplement—not replace—the source bibliography `[1]`–`[22]` omitted from the supplied specification.
+
+- **Langa API guide:** https://langa.julimer.com/developers — documents language-specific transcription with explicit `yo`, `ha`, `ig`, or `en` selection, the request/response audio API, lack of tool/function calling in chat, and server-side API-key handling. The documented voice list does not include a separate Nigerian Pidgin ASR code; Pidgin readiness must be established by a different verified path or a measured evaluation, not assumed.
+- **Langa voice API:** https://langa.julimer.com/voice — describes file-based transcription and turn-based voice chat, not a full-duplex streaming call.
+- **Central Bank of Nigeria, Payment Service Providers:** https://www.cbn.gov.ng/PaymentsSystem/PSPs.html — lists licence categories and payment service providers. This is a useful starting point for partner diligence, not a legal opinion that any particular provider can lawfully supply every escrow/deal function PAL might require.
+
+Accessed 2026-10-13. Re-check provider documentation, licensing status, terms, and legal/compliance advice before production decisions.
