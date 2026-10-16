@@ -4,7 +4,7 @@ This note describes the minimum configuration required for a functioning end-to-
 
 ## 1. Real LLM key
 
-The semantic and workflow agents (and the `/command` demo) use `llmConfigFromEnv()`.
+The semantic and workflow agents (and the `/command` demo) use `llmConfigFromEnv()` / `workflowConfigFromEnv()`.
 
 **Priority (first match wins):**
 1. `XAI_API_KEY` (Grok / xAI)
@@ -16,16 +16,17 @@ The semantic and workflow agents (and the `/command` demo) use `llmConfigFromEnv
 ```bash
 XAI_API_KEY=xai-...
 XAI_MODEL=grok-4.1
-# optional
-XAI_BASE_URL=https://api.x.ai/v1
 ```
 
-**Groq (fast open models):**
+**Groq (fast open models — recommended for PAL semantic + workflow):**
 ```bash
 GROQ_API_KEY=gsk_...
+# Best practical default for quality + speed + JSON mode:
 GROQ_MODEL=llama-3.3-70b-versatile
-# optional
-GROQ_BASE_URL=https://api.groq.com/openai/v1
+# Faster triage option:
+# GROQ_MODEL=llama-3.1-8b-instant
+# Strong structured-output option (if available on your account):
+# GROQ_MODEL=openai/gpt-oss-120b
 ```
 
 **OpenRouter:**
@@ -40,7 +41,9 @@ OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-4o-mini
 ```
 
-The public `/command` demo endpoint (`/api/demo/pipeline`) calls `llmConfigFromEnv()` directly, so whichever key you set is used. Without any key it falls back to a local stub.
+The public `/command` demo endpoint (`/api/demo/pipeline`) calls `llmConfigFromEnv()` directly. Without any key it falls back to a local stub.
+
+**Security:** Never commit real keys. Keep them in `.env.local` only. Rotate any key that has been shared in chat, email, or a PR.
 
 ## 2. Native executor
 
@@ -53,9 +56,9 @@ The public `/command` demo endpoint (`/api/demo/pipeline`) calls `llmConfigFromE
 
 ## 4. End-to-end functioning checklist
 
-1. Set `XAI_API_KEY` (Grok) or `GROQ_API_KEY` (or OpenRouter / OpenAI) in `.env.local`.
+1. Set `GROQ_API_KEY` (or `XAI_API_KEY`) in `.env.local` only.
 2. Apply migration `0009`.
-3. Use `/command` — it will call the live pipeline with the configured key.
+3. Use `/command` — it will call the live pipeline with the configured key and the best available model.
 4. Approve a `message.send` — the native executor records it in `outbound_messages`.
 
 No secrets are committed.
