@@ -1,14 +1,17 @@
 /**
  * Voice ingestion database service — persists sessions and speech events
- * 
+ *
  * Implements PAL_ARCHITECTURE.md §40: workspace-scoped voice data with
  * explicit RLS enforcement through workspace membership checks.
+ *
+ * Also broadcasts partial/final transcripts via Supabase Realtime.
  */
 
 import "server-only";
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { SaharaSessionRecord } from "@/providers/sahara";
 import type { SpeechEvent } from "@/core/schemas/speech-event";
+import { broadcastTranscript } from "@/lib/realtime/transcripts";
 
 type DbVoiceSession = {
   id: string;
@@ -83,6 +86,16 @@ export class VoiceDbService {
     if (error) {
       throw new Error(`Failed to update voice session: ${error.message}`);
     }
+
+    if (updates.partialTranscript !== undefined && updates.workspaceId) {
+      await broadcastTranscript(this.supabase, {
+        type: "partial",
+        sessionId,
+        workspaceId: updates.workspaceId,
+        text: updates.partialTranscript,
+        sequence: updates.lastSequence,
+      }).catch(() => undefined);
+    }
   }
 
   async getSession(sessionId: string, workspaceId: string): Promise<SaharaSessionRecord | null> {
@@ -94,7 +107,7 @@ export class VoiceDbService {
       .single();
 
     if (error) {
-      if (error.code === "PGRST116") return null; // Not found
+      if (error.code === "PGRST116") return null;
       throw new Error(`Failed to get voice session: ${error.message}`);
     }
 
@@ -139,6 +152,14 @@ export class VoiceDbService {
     if (error) {
       throw new Error(`Failed to create speech event: ${error.message}`);
     }
+
+    await broadcastTranscript(this.supabase, {
+      type: "final",
+      sessionId: event.sessionId,
+      workspaceId,
+      eventId: event.id,
+      text: event.transcript.text,
+    }).catch(() => undefined);
   }
 
   async getSpeechEvent(eventId: string, workspaceId: string): Promise<SpeechEvent | null> {
@@ -150,7 +171,7 @@ export class VoiceDbService {
       .single();
 
     if (error) {
-      if (error.code === "PGRST116") return null; // Not found
+      if (error.code === "PGRST116") return null;
       throw new Error(`Failed to get speech event: ${error.message}`);
     }
 
