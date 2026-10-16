@@ -18,26 +18,96 @@ const PRESETS = [
   "Show me Chinedu last invoice",
 ];
 
+type DemoProposal = {
+  title: string;
+  payload: string;
+  mix: string;
+  why: string;
+};
+
 export function CommandWorkspace() {
   const [text, setText] = useState(PRESETS[0]!);
   const [stage, setStage] = useState<AgentStage>("idle");
-  const [meaning, setMeaning] = useState<Interpreted | null>(null);
+  const [meaning, setMeaning] = useState<Interpreted | DemoProposal | null>(null);
   const [decision, setDecision] = useState<"approved" | "rejected" | null>(null);
+  const [listening, setListening] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
   const timers = useRef<number[]>([]);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     return () => {
       timers.current.forEach((id) => window.clearTimeout(id));
+      recognitionRef.current?.stop();
     };
   }, []);
 
-  function run() {
+  function startMic() {
+    setMicError(null);
+    const SpeechRecognition =
+      (window as unknown as { SpeechRecognition?: typeof globalThis.SpeechRecognition; webkitSpeechRecognition?: typeof globalThis.SpeechRecognition })
+        .SpeechRecognition ||
+      (window as unknown as { webkitSpeechRecognition?: typeof globalThis.SpeechRecognition }).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setMicError("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-NG";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      const transcript = event.results[0]?.[0]?.transcript ?? "";
+      if (transcript) setText(transcript);
+      setListening(false);
+    };
+
+    recognition.onerror = () => {
+      setMicError("Could not capture speech. Try again or type.");
+      setListening(false);
+    };
+
+    recognition.onend = () => setListening(false);
+
+    recognitionRef.current = recognition;
+    setListening(true);
+    recognition.start();
+  }
+
+  function stopMic() {
+    recognitionRef.current?.stop();
+    setListening(false);
+  }
+
+  async function run() {
     timers.current.forEach((id) => window.clearTimeout(id));
     timers.current = [];
     setDecision(null);
     setMeaning(null);
     const utterance = text.trim();
     if (!utterance) return;
+
+    // Prefer live demo endpoint when available (PR #6); fall back to local interpret.
+    try {
+      const res = await fetch("/api/demo/pipeline", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: utterance }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.proposal) {
+          setMeaning(data.proposal);
+          setStage("asking");
+          return;
+        }
+      }
+    } catch {
+      // fall through to local demo
+    }
 
     PIPELINE.forEach((s, i) => {
       const id = window.setTimeout(() => {
@@ -59,6 +129,8 @@ export function CommandWorkspace() {
     }
   }
 
+  const display = meaning as (Interpreted & DemoProposal) | null;
+
   return (
     <div className="flex flex-col gap-6">
       <AgentStatus stage={stage} size="md" />
@@ -73,7 +145,18 @@ export function CommandWorkspace() {
         />
       </label>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={listening ? stopMic : startMic}
+          className={`h-9 rounded-full border px-3 text-xs ${
+            listening
+              ? "border-red-700 text-red-400"
+              : "border-neutral-800 text-neutral-500 hover:text-neutral-200"
+          }`}
+        >
+          {listening ? "Stop mic" : "Mic"}
+        </button>
         {PRESETS.map((p) => (
           <button
             key={p}
@@ -86,9 +169,12 @@ export function CommandWorkspace() {
         ))}
       </div>
 
+      {micError ? <p className="text-xs text-red-400">{micError}</p> : null}
+
       <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 px-3 py-2 text-xs text-neutral-500">
-        Demo mode · no external side effects are sent. Approval still controls the
-        Act stage, and PAL visibly enters Verify before finishing.
+        Optional mic fills the utterance (Web Speech API). Run still posts to the live
+        demo endpoint when available, otherwise uses the local demo. No external side
+        effects are sent.
       </div>
 
       <button
@@ -99,13 +185,13 @@ export function CommandWorkspace() {
         Run pipeline
       </button>
 
-      {meaning && stage === "asking" && !decision ? (
+      {display && stage === "asking" && !decision ? (
         <article className="rounded-xl border border-emerald-900/50 bg-emerald-950/20 p-5">
           <p className="text-xs uppercase tracking-wide text-emerald-400">PAL is asking</p>
-          <h2 className="mt-1 text-lg font-medium text-neutral-100">{meaning.title}</h2>
-          <p className="mt-2 font-mono text-xs text-neutral-400">{meaning.payload}</p>
+          <h2 className="mt-1 text-lg font-medium text-neutral-100">{display.title}</h2>
+          <p className="mt-2 font-mono text-xs text-neutral-400">{display.payload}</p>
           <p className="mt-2 text-xs text-neutral-500">
-            {meaning.mix} · {meaning.why}
+            {display.mix} · {display.why}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
