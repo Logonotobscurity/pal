@@ -1,10 +1,10 @@
 /**
  * Execution Service
- * 
+ *
  * Implements PAL_ARCHITECTURE.md §30: Execution Service
- * 
+ *
  * The execution service is the only component allowed to call external write APIs.
- * 
+ *
  * Flow:
  * 1. Approved Proposal
  * 2. Capability Registry lookup
@@ -24,7 +24,7 @@ import { getCapability } from "@/core/capabilities/registry";
 import { generateIdempotencyKey } from "@/lib/utils/idempotency";
 import { createId } from "@/lib/utils/ids";
 import { ExecutionDatabaseService } from "./db";
-import { executeMockCapability } from "./executors/mock";
+import { executeCapability } from "./executors";
 
 export type ExecutionServiceConfig = {
   workspaceId: string;
@@ -45,6 +45,7 @@ export class ExecutionService {
   private readonly workspaceId: string;
   private readonly logger: ExecutionServiceLogger;
   private readonly dbService: ExecutionDatabaseService;
+  private readonly supabase: SupabaseClient;
 
   constructor(
     supabase: SupabaseClient,
@@ -52,6 +53,7 @@ export class ExecutionService {
     logger?: ExecutionServiceLogger,
   ) {
     this.workspaceId = config.workspaceId;
+    this.supabase = supabase;
     this.dbService = new ExecutionDatabaseService(supabase);
     this.logger = logger ?? {
       info: () => undefined,
@@ -62,7 +64,7 @@ export class ExecutionService {
 
   /**
    * Execute an approved proposal
-   * 
+   *
    * PAL_ARCHITECTURE.md §30:
    * - Only execute approved proposals
    * - Perform idempotency check
@@ -77,7 +79,6 @@ export class ExecutionService {
       status: proposal.status,
     });
 
-    // 1. Validate proposal is approved
     if (proposal.status !== "approved") {
       throw new Error(`Cannot execute proposal with status: ${proposal.status}`);
     }
@@ -86,7 +87,6 @@ export class ExecutionService {
       throw new Error("Cannot execute proposal that was not allowed by policy");
     }
 
-    // 2. Capability Registry lookup
     const capability = getCapability(proposal.actionType);
     if (!capability) {
       throw new Error(`Unknown capability: ${proposal.actionType}`);
@@ -98,7 +98,6 @@ export class ExecutionService {
       provider: capability.provider,
     });
 
-    // 3. Generate idempotency key (§33)
     const idempotencyKey = await generateIdempotencyKey(
       proposal.workspaceId,
       proposal.id,
@@ -109,7 +108,6 @@ export class ExecutionService {
       idempotencyKey,
     });
 
-    // 4. Idempotency check
     const existingAttempt = await this.dbService.getAttemptByIdempotencyKey(
       idempotencyKey,
       this.workspaceId,
@@ -127,7 +125,6 @@ export class ExecutionService {
       };
     }
 
-    // 5. Create execution attempt record (queued)
     const executionId = createId("exec");
     const queuedAttempt = await this.dbService.createAttempt({
       executionId,
@@ -145,7 +142,6 @@ export class ExecutionService {
       status: queuedAttempt.status,
     });
 
-    // 6. Update to running status
     await this.dbService.updateAttemptStatus({
       executionId,
       workspaceId: this.workspaceId,
@@ -158,12 +154,12 @@ export class ExecutionService {
     });
 
     try {
-      // 7. Execute capability (external API call)
-      // For MVP, use mock executors. Real executors would call actual APIs.
-      const executorResponse = await executeMockCapability(capability, proposal.exactPayload);
+      const executorResponse = await executeCapability(capability, proposal.exactPayload, {
+        supabase: this.supabase,
+        workspaceId: this.workspaceId,
+      });
 
       if (executorResponse.success) {
-        // Success - update attempt
         const succeededAttempt = await this.dbService.updateAttemptStatus({
           executionId,
           workspaceId: this.workspaceId,
@@ -183,7 +179,6 @@ export class ExecutionService {
           alreadyExecuted: false,
         };
       } else {
-        // Failure - update attempt with error
         const failedAttempt = await this.dbService.updateAttemptStatus({
           executionId,
           workspaceId: this.workspaceId,
@@ -205,7 +200,6 @@ export class ExecutionService {
         };
       }
     } catch (err) {
-      // Unexpected error during execution
       const error = err instanceof Error ? err : new Error("Unknown error");
 
       this.logger.error("execution.service.exception", {
@@ -230,9 +224,6 @@ export class ExecutionService {
   }
 }
 
-/**
- * Create execution service with configuration
- */
 export function createExecutionService(
   supabase: SupabaseClient,
   config: ExecutionServiceConfig,
@@ -240,4 +231,3 @@ export function createExecutionService(
 ): ExecutionService {
   return new ExecutionService(supabase, config, logger);
 }
-
