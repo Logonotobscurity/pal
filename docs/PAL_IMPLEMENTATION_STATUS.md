@@ -66,7 +66,7 @@ Safety invariant (always visible on home):
 | Full real executors (WhatsApp, email, SMS native clients) | §30–34 | Webhook path exists for message.send; native providers not yet implemented |
 | Supabase Realtime broadcast for live transcripts | §8 | Issue #5 |
 | Activity / audit feed UI | Structure | Deferred |
-| Benchmark run artifacts (dataset load + measured results) | `scripts/benchmark/` | Harness exists (`evaluate-pipeline.ts`, `load-dataset.py`, `metrics/`); no completed run published — see `MARKDOWN_VALIDATION_REPORT.md` |
+| Benchmark run artifacts (dataset load + measured results) | `scripts/benchmark/` | Harness exists (`evaluate-pipeline.ts`, `load-dataset.py`, `metrics/`); no completed run published |
 | Observability (structured logs + error tracking) | — | Issue #4 |
 | `agents/` top-level package layout | §9 | Logic lives under `services/` + `providers/` instead |
 | Command / voice frontend fully connected | — | Backend ready; mic UI not fully wired |
@@ -97,7 +97,7 @@ Ideal layout in `PAL_ARCHITECTURE.md` §9 (agents/, benchmarks/, intelligence ro
 |----------|------|
 | `OPENAI_API_KEY` | Direct OpenAI (required on main today) |
 | `OPENAI_MODEL` | Model id (e.g. `gpt-4o-mini` or `openai/gpt-4o-mini` for OpenRouter) |
-| `OPENROUTER_API_KEY` | Preferred gateway once PRs #8–#10 land |
+| `OPENROUTER_API_KEY` | Preferred gateway once remaining PRs land |
 | `OPENROUTER_BASE_URL` | Default `https://openrouter.ai/api/v1` |
 
 ---
@@ -119,5 +119,5 @@ Ideal layout in `PAL_ARCHITECTURE.md` §9 (agents/, benchmarks/, intelligence ro
 1. Treat this file as the ground truth for “what exists.”
 2. Do not implement Research plane or React Flow workspace without an explicit task.
 3. Keep the safety invariant: **propose → policy → approve → execute → verify**.
-4. Prefer small, reviewable PRs; avoid overlapping files with open PRs #6–#10.
+4. Prefer small, reviewable PRs.
 5. When you ship a capability listed under “Not yet implemented,” update this file in the same PR.
