@@ -9,6 +9,11 @@
  * 2. GROQ_API_KEY (Groq inference) — https://api.groq.com/openai/v1
  * 3. OPENROUTER_API_KEY
  * 4. OPENAI_API_KEY
+ *
+ * Groq model defaults (strongest practical for PAL semantic + workflow):
+ * - Default: llama-3.3-70b-versatile (best quality/speed balance, solid JSON mode)
+ * - Override with GROQ_MODEL=llama-3.1-8b-instant for lower latency triage
+ * - Override with GROQ_MODEL=openai/gpt-oss-120b if available and preferred for structured output
  */
 
 import "server-only";
@@ -305,6 +310,9 @@ export function createSemanticExtractor(config: LLMConfig): OpenAISemanticExtrac
  * 2. GROQ_API_KEY (Groq) — https://api.groq.com/openai/v1
  * 3. OPENROUTER_API_KEY
  * 4. OPENAI_API_KEY
+ *
+ * Groq defaults to llama-3.3-70b-versatile (best practical quality for semantic extraction).
+ * Set GROQ_MODEL to override (e.g. llama-3.1-8b-instant for speed).
  */
 export function llmConfigFromEnv(): LLMConfig | null {
   const xaiKey = process.env.XAI_API_KEY;
@@ -325,7 +333,7 @@ export function llmConfigFromEnv(): LLMConfig | null {
     return {
       apiKey: groqKey,
       baseURL: process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1",
-      model: process.env.GROQ_MODEL ?? process.env.OPENAI_MODEL ?? "llama-3.3-70b-versatile",
+      model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
       provider: "groq",
     };
   }
