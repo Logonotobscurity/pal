@@ -1,28 +1,31 @@
 /**
- * OpenAI / OpenRouter LLM Provider — Semantic extraction and structured output
+ * OpenAI-compatible LLM Provider — Semantic extraction and structured output
  *
  * Implements PAL_ARCHITECTURE.md §19: Semantic Agent with LLM-based meaning extraction.
  * Uses structured outputs (JSON mode) for type-safe semantic analysis.
  *
- * Supports both direct OpenAI and OpenRouter (OpenAI-compatible API).
- * Set OPENROUTER_API_KEY + optional OPENROUTER_BASE_URL, or fall back to OPENAI_API_KEY.
+ * Provider priority (first match wins):
+ * 1. XAI_API_KEY (Grok / xAI) — OpenAI-compatible at https://api.x.ai/v1
+ * 2. OPENROUTER_API_KEY
+ * 3. OPENAI_API_KEY
  */
 
 import "server-only";
 import OpenAI from "openai";
 import type { SemanticIntentType } from "@/core/schemas/meaning-state";
 
-export type LLMProvider = "openai" | "openrouter" | "anthropic" | "other";
+export type LLMProvider = "xai" | "openai" | "openrouter" | "anthropic" | "other";
 
 export type LLMConfig = {
   apiKey: string;
   model: string;
-  /** OpenAI-compatible base URL. Use https://openrouter.ai/api/v1 for OpenRouter. */
+  /** OpenAI-compatible base URL. */
   baseURL?: string;
   temperature?: number;
   maxTokens?: number;
   /** Optional headers (e.g. OpenRouter HTTP-Referer / X-Title) */
   defaultHeaders?: Record<string, string>;
+  provider?: LLMProvider;
 };
 
 export type SemanticExtractionInput = {
@@ -67,7 +70,7 @@ export type SemanticExtractionOutput = {
 };
 
 /**
- * OpenAI-compatible semantic extractor (works with OpenAI or OpenRouter).
+ * OpenAI-compatible semantic extractor (works with Grok/xAI, OpenAI, or OpenRouter).
  */
 export class OpenAISemanticExtractor {
   private readonly client: OpenAI;
@@ -296,25 +299,39 @@ Output: {
 
 /**
  * Create a semantic extractor.
- * Prefer OpenRouter when OPENROUTER_API_KEY is set; otherwise fall back to OPENAI_API_KEY.
  */
 export function createSemanticExtractor(config: LLMConfig): OpenAISemanticExtractor {
   return new OpenAISemanticExtractor(config);
 }
 
 /**
- * Helper to build LLMConfig from environment.
- * OpenRouter takes precedence when OPENROUTER_API_KEY is present.
+ * Build LLMConfig from environment.
+ *
+ * Priority:
+ * 1. XAI_API_KEY (Grok) — OpenAI-compatible, baseURL https://api.x.ai/v1
+ * 2. OPENROUTER_API_KEY
+ * 3. OPENAI_API_KEY
  */
 export function llmConfigFromEnv(): LLMConfig {
+  const xaiKey = process.env.XAI_API_KEY;
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   const openAiKey = process.env.OPENAI_API_KEY;
+
+  if (xaiKey) {
+    return {
+      apiKey: xaiKey,
+      baseURL: process.env.XAI_BASE_URL ?? "https://api.x.ai/v1",
+      model: process.env.XAI_MODEL ?? process.env.OPENAI_MODEL ?? "grok-4.1",
+      provider: "xai",
+    };
+  }
 
   if (openRouterKey) {
     return {
       apiKey: openRouterKey,
       baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
       model: process.env.OPENAI_MODEL ?? "openai/gpt-4o-mini",
+      provider: "openrouter",
       defaultHeaders: {
         "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER ?? "https://github.com/Logonotobscurity/pal",
         "X-Title": process.env.OPENROUTER_X_TITLE ?? "PAL – Meaning-to-Action",
@@ -323,11 +340,12 @@ export function llmConfigFromEnv(): LLMConfig {
   }
 
   if (!openAiKey) {
-    throw new Error("Neither OPENROUTER_API_KEY nor OPENAI_API_KEY is set");
+    throw new Error("Neither XAI_API_KEY, OPENROUTER_API_KEY, nor OPENAI_API_KEY is set");
   }
 
   return {
     apiKey: openAiKey,
     model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+    provider: "openai",
   };
 }
