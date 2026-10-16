@@ -5,25 +5,24 @@
  * Uses structured outputs (JSON mode) for type-safe semantic analysis.
  *
  * Provider priority (first match wins):
- * 1. XAI_API_KEY (Grok / xAI) — OpenAI-compatible at https://api.x.ai/v1
- * 2. OPENROUTER_API_KEY
- * 3. OPENAI_API_KEY
+ * 1. XAI_API_KEY (Grok / xAI) — https://api.x.ai/v1
+ * 2. GROQ_API_KEY (Groq inference) — https://api.groq.com/openai/v1
+ * 3. OPENROUTER_API_KEY
+ * 4. OPENAI_API_KEY
  */
 
 import "server-only";
 import OpenAI from "openai";
 import type { SemanticIntentType } from "@/core/schemas/meaning-state";
 
-export type LLMProvider = "xai" | "openai" | "openrouter" | "anthropic" | "other";
+export type LLMProvider = "xai" | "groq" | "openai" | "openrouter" | "anthropic" | "other";
 
 export type LLMConfig = {
   apiKey: string;
   model: string;
-  /** OpenAI-compatible base URL. */
   baseURL?: string;
   temperature?: number;
   maxTokens?: number;
-  /** Optional headers (e.g. OpenRouter HTTP-Referer / X-Title) */
   defaultHeaders?: Record<string, string>;
   provider?: LLMProvider;
 };
@@ -69,9 +68,6 @@ export type SemanticExtractionOutput = {
   fieldConfidence: Record<string, number>;
 };
 
-/**
- * OpenAI-compatible semantic extractor (works with Grok/xAI, OpenAI, or OpenRouter).
- */
 export class OpenAISemanticExtractor {
   private readonly client: OpenAI;
   private readonly model: string;
@@ -297,9 +293,6 @@ Output: {
   }
 }
 
-/**
- * Create a semantic extractor.
- */
 export function createSemanticExtractor(config: LLMConfig): OpenAISemanticExtractor {
   return new OpenAISemanticExtractor(config);
 }
@@ -308,12 +301,14 @@ export function createSemanticExtractor(config: LLMConfig): OpenAISemanticExtrac
  * Build LLMConfig from environment.
  *
  * Priority:
- * 1. XAI_API_KEY (Grok) — OpenAI-compatible, baseURL https://api.x.ai/v1
- * 2. OPENROUTER_API_KEY
- * 3. OPENAI_API_KEY
+ * 1. XAI_API_KEY (Grok) — https://api.x.ai/v1
+ * 2. GROQ_API_KEY (Groq) — https://api.groq.com/openai/v1
+ * 3. OPENROUTER_API_KEY
+ * 4. OPENAI_API_KEY
  */
-export function llmConfigFromEnv(): LLMConfig {
+export function llmConfigFromEnv(): LLMConfig | null {
   const xaiKey = process.env.XAI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   const openAiKey = process.env.OPENAI_API_KEY;
 
@@ -323,6 +318,15 @@ export function llmConfigFromEnv(): LLMConfig {
       baseURL: process.env.XAI_BASE_URL ?? "https://api.x.ai/v1",
       model: process.env.XAI_MODEL ?? process.env.OPENAI_MODEL ?? "grok-4.1",
       provider: "xai",
+    };
+  }
+
+  if (groqKey) {
+    return {
+      apiKey: groqKey,
+      baseURL: process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1",
+      model: process.env.GROQ_MODEL ?? process.env.OPENAI_MODEL ?? "llama-3.3-70b-versatile",
+      provider: "groq",
     };
   }
 
@@ -339,13 +343,13 @@ export function llmConfigFromEnv(): LLMConfig {
     };
   }
 
-  if (!openAiKey) {
-    throw new Error("Neither XAI_API_KEY, OPENROUTER_API_KEY, nor OPENAI_API_KEY is set");
+  if (openAiKey) {
+    return {
+      apiKey: openAiKey,
+      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+      provider: "openai",
+    };
   }
 
-  return {
-    apiKey: openAiKey,
-    model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-    provider: "openai",
-  };
+  return null;
 }
