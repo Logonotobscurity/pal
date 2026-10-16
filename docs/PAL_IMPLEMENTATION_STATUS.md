@@ -1,6 +1,6 @@
 # PAL — Current Implementation Status
 
-**Last updated:** 2026-09-21  
+**Last updated:** 2026-10-16  
 **Purpose:** Reduce doc drift (see issue #2). This file describes what exists in the repository *today* versus what `PAL_ARCHITECTURE.md` describes as the target.
 
 ---
@@ -33,11 +33,12 @@ Safety invariant (always visible on home):
 | Semantic Agent (SpeechEvent → MeaningState) | Implemented | `src/providers/openai-llm.ts`, `src/services/semantic`, `/api/semantic/analyze` |
 | Workflow Agent (MeaningState → ActionPlan / WorkflowIR) | Implemented | `src/providers/openai-workflow.ts`, `src/services/workflow`, `/api/workflow/generate` |
 | Workflow IR validation | Implemented | `src/core/workflow/validator.ts` |
-| Capability registry | Implemented (mostly mock executors) | `src/core/capabilities/registry.ts` |
+| Capability registry | Implemented | `src/core/capabilities/registry.ts` |
 | Policy / proposal creation | Implemented | services + `/api/proposals*` |
 | Approval API (approve / reject / edit + optimistic locking) | Implemented | `/api/proposals/[id]/*` |
 | Approvals UI (list, card, detail) | Implemented | `src/components/approvals/*`, `src/app/approvals` |
 | Execution + verification API stubs | Implemented | `/api/executions`, `/api/verifications` |
+| Real messaging executor (webhook) | Scaffolded | `src/services/execution/executors/messaging.ts` — used for `message.send` when `MESSAGING_WEBHOOK_URL` is set |
 | Domain schemas (Zod) | Implemented | `src/core/schemas/*` |
 | Env boundary | Implemented | `src/lib/env.ts`, `.env.example` |
 
@@ -52,6 +53,7 @@ Safety invariant (always visible on home):
 | AgentStatus component | Added and used by the public `/command` demo |
 | CI pipeline | Present in `.github/workflows/ci.yml` |
 | Security policy doc | Active policy is present in `docs/PAL_SECURITY.md` |
+| Real executors | `message.send` can call a configured webhook; other capabilities still mock |
 
 ---
 
@@ -61,7 +63,7 @@ Safety invariant (always visible on home):
 |------|------------------|--------|
 | Research intelligence plane | §4 Plane B | No search/claim/evidence graph agents |
 | React Flow workspace UI | §5 / structure | Schema exists; no visual editor |
-| Real executors (WhatsApp, email, etc.) | §30–34 | Issue #3 — still mock |
+| Full real executors (WhatsApp, email, SMS native clients) | §30–34 | Webhook path exists for message.send; native providers not yet implemented |
 | Supabase Realtime broadcast for live transcripts | §8 | Issue #5 |
 | Activity / audit feed UI | Structure | Deferred |
 | Benchmark run artifacts (dataset load + measured results) | `scripts/benchmark/` | Harness exists (`evaluate-pipeline.ts`, `load-dataset.py`, `metrics/`); no completed run published — see `MARKDOWN_VALIDATION_REPORT.md` |
@@ -106,7 +108,7 @@ Ideal layout in `PAL_ARCHITECTURE.md` §9 (agents/, benchmarks/, intelligence ro
 |-------|----------|--------|
 | #1 | P0 | Rotate previously exposed secrets (manual) |
 | #2 | P1 | Architecture ↔ repo reconciliation (this file starts it) |
-| #3 | P1 | Real executor path |
+| #3 | P1 | Real executor path (messaging webhook scaffolding landed) |
 | #4 | P1 | Observability |
 | #5 | P1 | Phase 4 hardening + challenge eval |
 

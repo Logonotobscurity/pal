@@ -1,10 +1,10 @@
 /**
  * Execution Service
- * 
+ *
  * Implements PAL_ARCHITECTURE.md §30: Execution Service
- * 
+ *
  * The execution service is the only component allowed to call external write APIs.
- * 
+ *
  * Flow:
  * 1. Approved Proposal
  * 2. Capability Registry lookup
@@ -24,7 +24,7 @@ import { getCapability } from "@/core/capabilities/registry";
 import { generateIdempotencyKey } from "@/lib/utils/idempotency";
 import { createId } from "@/lib/utils/ids";
 import { ExecutionDatabaseService } from "./db";
-import { executeMockCapability } from "./executors/mock";
+import { executeCapability } from "./executors";
 
 export type ExecutionServiceConfig = {
   workspaceId: string;
@@ -62,7 +62,7 @@ export class ExecutionService {
 
   /**
    * Execute an approved proposal
-   * 
+   *
    * PAL_ARCHITECTURE.md §30:
    * - Only execute approved proposals
    * - Perform idempotency check
@@ -158,9 +158,9 @@ export class ExecutionService {
     });
 
     try {
-      // 7. Execute capability (external API call)
-      // For MVP, use mock executors. Real executors would call actual APIs.
-      const executorResponse = await executeMockCapability(capability, proposal.exactPayload);
+      // 7. Execute capability (external API call via router)
+      // Real path used for message.send when MESSAGING_WEBHOOK_URL is set.
+      const executorResponse = await executeCapability(capability, proposal.exactPayload);
 
       if (executorResponse.success) {
         // Success - update attempt
@@ -240,4 +240,3 @@ export function createExecutionService(
 ): ExecutionService {
   return new ExecutionService(supabase, config, logger);
 }
-
