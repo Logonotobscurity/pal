@@ -13,11 +13,9 @@ export default function CommandPage() {
           Speak, then PAL asks
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-neutral-400">
-          Type a mixed-language request. The orb follows the real pipeline. Execution
-          never starts until you say yes.
-        </p>
-        <p className="mt-2 text-xs text-neutral-600">
-          Public demo — no sign-in. Approvals still uses a signed-in workspace.
+          Type or speak a mixed-language request. With a workspace ID and signed-in session,
+          PAL runs the real semantic and workflow agents, creates a pending proposal, and
+          executes only after you approve.
         </p>
         <div className="mt-8 rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
           <CommandWorkspace />
