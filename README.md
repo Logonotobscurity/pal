@@ -109,16 +109,16 @@ Risk Class: EXTERNAL_WRITE
 
 **4. 🔴 APPROVAL UI 🔴**:
 ```
-┌────────────────────────────────────────┐
+┌───────────────────────────────────────┐
 │ PAL IS ASKING                          │
-├────────────────────────────────────────┤
+├───────────────────────────────────────┤
 │ Action: Send reminder message          │
 │ Recipient: Mama Wanjiku                │
 │ Amount: Ksh 5000                       │
 │ Deadline: Tomorrow (Sept 16) by 5pm   │
 │                                        │
 │ [✅ Approve]  [✏️ Edit]  [❌ Reject]   │
-└────────────────────────────────────────┘
+└───────────────────────────────────────┘
 ```
 
 **5. After Approval → Execute → Verify**
@@ -457,8 +457,10 @@ npm run benchmark:quick
 
 ## 📜 License
 
-[Add your license here]
+MIT. See [LICENSE](LICENSE).
 
 ---
 
 **PAL proves that better code-switch handling isn't just about transcription accuracy — it's about enabling safe, reliable automation for African businesses.**
+
+For current open gaps see [GAPS.md](GAPS.md).
