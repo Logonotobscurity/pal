@@ -12,9 +12,9 @@ This file tracks remaining gaps so documentation and code stay aligned. Update i
 
 | Gap | Location / notes | Status |
 |-----|------------------|--------|
-| Real executors (WhatsApp, email, SMS, etc.) | `src/services/execution/executors/` — messaging webhook path added for `message.send` when `MESSAGING_WEBHOOK_URL` is set; other capabilities still mock | Partial |
-| Command / voice frontend fully connected | `/command` is a public demo simulation; mic UI not fully wired to live Sahara pipeline | Open |
-| Benchmark run artifacts | Harness in `scripts/benchmark/`; no completed measured results published | Open |
+| Real executors (WhatsApp, email, SMS, etc.) | `src/services/execution/executors/` — messaging webhook for `message.send` when `MESSAGING_WEBHOOK_URL` is set; email webhook when `channel=email` + `EMAIL_WEBHOOK_URL` is set; other capabilities still mock | Partial |
+| Command / voice frontend fully connected | `/command` public demo now calls `/api/demo/pipeline` for live semantic+workflow (PR #6); mic UI still not fully wired | Partial |
+| Benchmark run artifacts | Harness in `scripts/benchmark/`; sample run recorder added (PR #6); no completed measured results published | Partial |
 | Observability (structured logs + error tracking) | Not present | Open |
 | Supabase Realtime broadcast for live transcripts | Architecture §8 | Open |
 
