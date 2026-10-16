@@ -1,10 +1,13 @@
 /**
- * OpenAI / OpenRouter Workflow LLM Provider — MeaningState → ActionPlan
+ * OpenAI-compatible Workflow LLM Provider — MeaningState → ActionPlan
  *
  * Implements PAL_ARCHITECTURE.md §20-21: Workflow Agent with constrained WorkflowIR generation.
  * Uses structured outputs for type-safe workflow planning.
  *
- * Supports both direct OpenAI and OpenRouter (OpenAI-compatible API).
+ * Provider priority (first match wins):
+ * 1. XAI_API_KEY (Grok / xAI)
+ * 2. OPENROUTER_API_KEY
+ * 3. OPENAI_API_KEY
  */
 
 import "server-only";
@@ -17,11 +20,11 @@ import type { Capability } from "@/core/capabilities/registry";
 export type WorkflowLLMConfig = {
   apiKey: string;
   model: string;
-  /** OpenAI-compatible base URL. Use https://openrouter.ai/api/v1 for OpenRouter. */
   baseURL?: string;
   temperature?: number;
   maxTokens?: number;
   defaultHeaders?: Record<string, string>;
+  provider?: "xai" | "openai" | "openrouter" | "other";
 };
 
 export type WorkflowGenerationInput = {
@@ -38,9 +41,6 @@ export type WorkflowGenerationOutput = {
   rationaleSummary: string;
 };
 
-/**
- * OpenAI-compatible workflow generator (works with OpenAI or OpenRouter).
- */
 export class OpenAIWorkflowGenerator {
   private readonly client: OpenAI;
   private readonly model: string;
@@ -252,26 +252,38 @@ CRITICAL RULES:
   }
 }
 
-/**
- * Create a workflow generator with the given configuration
- */
 export function createWorkflowGenerator(config: WorkflowLLMConfig): OpenAIWorkflowGenerator {
   return new OpenAIWorkflowGenerator(config);
 }
 
 /**
- * Helper to build WorkflowLLMConfig from environment.
- * OpenRouter takes precedence when OPENROUTER_API_KEY is present.
+ * Build WorkflowLLMConfig from environment.
+ *
+ * Priority:
+ * 1. XAI_API_KEY (Grok)
+ * 2. OPENROUTER_API_KEY
+ * 3. OPENAI_API_KEY
  */
 export function workflowConfigFromEnv(): WorkflowLLMConfig {
+  const xaiKey = process.env.XAI_API_KEY;
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   const openAiKey = process.env.OPENAI_API_KEY;
+
+  if (xaiKey) {
+    return {
+      apiKey: xaiKey,
+      baseURL: process.env.XAI_BASE_URL ?? "https://api.x.ai/v1",
+      model: process.env.XAI_MODEL ?? process.env.OPENAI_MODEL ?? "grok-4.1",
+      provider: "xai",
+    };
+  }
 
   if (openRouterKey) {
     return {
       apiKey: openRouterKey,
       baseURL: process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1",
       model: process.env.OPENAI_MODEL ?? "openai/gpt-4o-mini",
+      provider: "openrouter",
       defaultHeaders: {
         "HTTP-Referer": process.env.OPENROUTER_HTTP_REFERER ?? "https://github.com/Logonotobscurity/pal",
         "X-Title": process.env.OPENROUTER_X_TITLE ?? "PAL – Meaning-to-Action",
@@ -280,11 +292,12 @@ export function workflowConfigFromEnv(): WorkflowLLMConfig {
   }
 
   if (!openAiKey) {
-    throw new Error("Neither OPENROUTER_API_KEY nor OPENAI_API_KEY is set");
+    throw new Error("Neither XAI_API_KEY, OPENROUTER_API_KEY, nor OPENAI_API_KEY is set");
   }
 
   return {
     apiKey: openAiKey,
     model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+    provider: "openai",
   };
 }
