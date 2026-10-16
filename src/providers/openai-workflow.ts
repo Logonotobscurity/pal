@@ -6,8 +6,11 @@
  *
  * Provider priority (first match wins):
  * 1. XAI_API_KEY (Grok / xAI)
- * 2. OPENROUTER_API_KEY
- * 3. OPENAI_API_KEY
+ * 2. GROQ_API_KEY (Groq inference)
+ * 3. OPENROUTER_API_KEY
+ * 4. OPENAI_API_KEY
+ *
+ * Groq defaults to llama-3.3-70b-versatile for workflow planning.
  */
 
 import "server-only";
@@ -24,7 +27,7 @@ export type WorkflowLLMConfig = {
   temperature?: number;
   maxTokens?: number;
   defaultHeaders?: Record<string, string>;
-  provider?: "xai" | "openai" | "openrouter" | "other";
+  provider?: "xai" | "groq" | "openai" | "openrouter" | "other";
 };
 
 export type WorkflowGenerationInput = {
@@ -261,11 +264,13 @@ export function createWorkflowGenerator(config: WorkflowLLMConfig): OpenAIWorkfl
  *
  * Priority:
  * 1. XAI_API_KEY (Grok)
- * 2. OPENROUTER_API_KEY
- * 3. OPENAI_API_KEY
+ * 2. GROQ_API_KEY (Groq) — defaults to llama-3.3-70b-versatile
+ * 3. OPENROUTER_API_KEY
+ * 4. OPENAI_API_KEY
  */
-export function workflowConfigFromEnv(): WorkflowLLMConfig {
+export function workflowConfigFromEnv(): WorkflowLLMConfig | null {
   const xaiKey = process.env.XAI_API_KEY;
+  const groqKey = process.env.GROQ_API_KEY;
   const openRouterKey = process.env.OPENROUTER_API_KEY;
   const openAiKey = process.env.OPENAI_API_KEY;
 
@@ -275,6 +280,15 @@ export function workflowConfigFromEnv(): WorkflowLLMConfig {
       baseURL: process.env.XAI_BASE_URL ?? "https://api.x.ai/v1",
       model: process.env.XAI_MODEL ?? process.env.OPENAI_MODEL ?? "grok-4.1",
       provider: "xai",
+    };
+  }
+
+  if (groqKey) {
+    return {
+      apiKey: groqKey,
+      baseURL: process.env.GROQ_BASE_URL ?? "https://api.groq.com/openai/v1",
+      model: process.env.GROQ_MODEL ?? "llama-3.3-70b-versatile",
+      provider: "groq",
     };
   }
 
@@ -291,13 +305,13 @@ export function workflowConfigFromEnv(): WorkflowLLMConfig {
     };
   }
 
-  if (!openAiKey) {
-    throw new Error("Neither XAI_API_KEY, OPENROUTER_API_KEY, nor OPENAI_API_KEY is set");
+  if (openAiKey) {
+    return {
+      apiKey: openAiKey,
+      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+      provider: "openai",
+    };
   }
 
-  return {
-    apiKey: openAiKey,
-    model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-    provider: "openai",
-  };
+  return null;
 }
