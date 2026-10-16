@@ -8,7 +8,7 @@ import "server-only";
 import type { Capability } from "@/core/capabilities/registry";
 import { executeMockCapability, type ExecutorResponse } from "./mock";
 import { executeMessageSendReal } from "./messaging";
-import { executeEmailSend } from "./email";
+import { executeEmailSendReal } from "./email";
 
 export type { ExecutorResponse };
 
@@ -23,7 +23,7 @@ export async function executeCapability(
         : undefined;
 
     if (channel === "email" && process.env.EMAIL_WEBHOOK_URL) {
-      return executeEmailSend(capability, input);
+      return executeEmailSendReal(capability, input);
     }
 
     if (process.env.MESSAGING_WEBHOOK_URL) {
