@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AgentStatus, type AgentStage } from "@/components/agent/agent-status";
-import { interpret, type Interpreted } from "@/lib/interpret";
 
 const PIPELINE: AgentStage[] = [
   "listening",
@@ -18,11 +17,20 @@ const PRESETS = [
   "Show me Chinedu last invoice",
 ];
 
+type DemoProposal = {
+  title: string;
+  payload: string;
+  mix: string;
+  why: string;
+  actionType: string;
+};
+
 export function CommandWorkspace() {
   const [text, setText] = useState(PRESETS[0]!);
   const [stage, setStage] = useState<AgentStage>("idle");
-  const [meaning, setMeaning] = useState<Interpreted | null>(null);
+  const [proposal, setProposal] = useState<DemoProposal | null>(null);
   const [decision, setDecision] = useState<"approved" | "rejected" | null>(null);
+  const [source, setSource] = useState<"live" | "fallback" | "error-fallback" | null>(null);
   const timers = useRef<number[]>([]);
 
   useEffect(() => {
@@ -31,21 +39,39 @@ export function CommandWorkspace() {
     };
   }, []);
 
-  function run() {
+  async function run() {
     timers.current.forEach((id) => window.clearTimeout(id));
     timers.current = [];
     setDecision(null);
-    setMeaning(null);
+    setProposal(null);
+    setSource(null);
     const utterance = text.trim();
     if (!utterance) return;
 
-    PIPELINE.forEach((s, i) => {
-      const id = window.setTimeout(() => {
-        setStage(s);
-        if (s === "asking") setMeaning(interpret(utterance));
-      }, i * 900);
+    // Animate early stages while the real backend runs
+    PIPELINE.slice(0, 3).forEach((s, i) => {
+      const id = window.setTimeout(() => setStage(s), i * 600);
       timers.current.push(id);
     });
+
+    try {
+      const res = await fetch("/api/demo/pipeline", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text: utterance }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.proposal) {
+        setProposal(data.proposal);
+        setSource(data.source ?? "fallback");
+        setStage("asking");
+      } else {
+        setStage("idle");
+      }
+    } catch {
+      setStage("idle");
+    }
   }
 
   function decide(next: "approved" | "rejected") {
@@ -87,8 +113,11 @@ export function CommandWorkspace() {
       </div>
 
       <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 px-3 py-2 text-xs text-neutral-500">
-        Demo mode · no external side effects are sent. Approval still controls the
-        Act stage, and PAL visibly enters Verify before finishing.
+        {source === "live"
+          ? "Live pipeline · semantic + workflow agents ran on the server."
+          : source === "fallback"
+            ? "Fallback mode · configure OPENAI_API_KEY or OPENROUTER_API_KEY for the live path."
+            : "Demo mode · approval still controls the Act stage. No external side effects are sent."}
       </div>
 
       <button
@@ -99,13 +128,13 @@ export function CommandWorkspace() {
         Run pipeline
       </button>
 
-      {meaning && stage === "asking" && !decision ? (
+      {proposal && stage === "asking" && !decision ? (
         <article className="rounded-xl border border-emerald-900/50 bg-emerald-950/20 p-5">
           <p className="text-xs uppercase tracking-wide text-emerald-400">PAL is asking</p>
-          <h2 className="mt-1 text-lg font-medium text-neutral-100">{meaning.title}</h2>
-          <p className="mt-2 font-mono text-xs text-neutral-400">{meaning.payload}</p>
+          <h2 className="mt-1 text-lg font-medium text-neutral-100">{proposal.title}</h2>
+          <p className="mt-2 font-mono text-xs text-neutral-400">{proposal.payload}</p>
           <p className="mt-2 text-xs text-neutral-500">
-            {meaning.mix} · {meaning.why}
+            {proposal.mix} · {proposal.why}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <button
