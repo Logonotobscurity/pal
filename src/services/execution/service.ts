@@ -1,10 +1,10 @@
 /**
  * Execution Service
- * 
+ *
  * Implements PAL_ARCHITECTURE.md §30: Execution Service
- * 
+ *
  * The execution service is the only component allowed to call external write APIs.
- * 
+ *
  * Flow:
  * 1. Approved Proposal
  * 2. Capability Registry lookup
@@ -25,16 +25,13 @@ import { generateIdempotencyKey } from "@/lib/utils/idempotency";
 import { createId } from "@/lib/utils/ids";
 import { ExecutionDatabaseService } from "./db";
 import { executeMockCapability } from "./executors/mock";
+import { createLogger, type StructuredLogger } from "@/lib/observability/logger";
 
 export type ExecutionServiceConfig = {
   workspaceId: string;
 };
 
-export type ExecutionServiceLogger = {
-  info: (message: string, meta?: Record<string, unknown>) => void;
-  warn: (message: string, meta?: Record<string, unknown>) => void;
-  error: (message: string, meta?: Record<string, unknown>) => void;
-};
+export type ExecutionServiceLogger = StructuredLogger;
 
 export type ExecutionResult = {
   attempt: ExecutionAttempt;
@@ -53,16 +50,17 @@ export class ExecutionService {
   ) {
     this.workspaceId = config.workspaceId;
     this.dbService = new ExecutionDatabaseService(supabase);
-    this.logger = logger ?? {
-      info: () => undefined,
-      warn: () => undefined,
-      error: () => undefined,
-    };
+    this.logger =
+      logger ??
+      createLogger({
+        service: "execution",
+        workspaceId: config.workspaceId,
+      });
   }
 
   /**
    * Execute an approved proposal
-   * 
+   *
    * PAL_ARCHITECTURE.md §30:
    * - Only execute approved proposals
    * - Perform idempotency check
@@ -240,4 +238,3 @@ export function createExecutionService(
 ): ExecutionService {
   return new ExecutionService(supabase, config, logger);
 }
-
