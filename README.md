@@ -1,9 +1,16 @@
 # PAL — Meaning-to-Action Intelligence
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)](https://www.typescriptlang.org/)
+[![Sahara](https://img.shields.io/badge/STT-Sahara%20v2.5-green)]()
+[![Safety](https://img.shields.io/badge/Safety-human%20approval%20required-red)]()
+[![Status](https://img.shields.io/badge/Benchmark-methodology%20ready-orange)]()
+
 **Voice-to-action system for African code-switching that always asks before it acts.**
 
 > Sahara CodeSwitch Africa Challenge submission (September 2026).  
 > No LLM has direct execution authority. Human approval is required for consequential actions.
+
+<!-- Demo GIF: short clip of code-switched speech → approval UI → action -->
 
 ---
 
@@ -27,9 +34,16 @@ Architecture principle: **Speech → Meaning → State → Plan → Policy → A
 
 ## Architecture
 
-```
-Voice (code-switched) → Sahara STT → MeaningState → ActionPlan
-    → Policy Engine → 🔴 ASK (Human Approval) 🔴 → Execute → Verify
+```mermaid
+flowchart LR
+    A[Voice<br/>code-switched] --> B[Sahara STT]
+    B --> C[MeaningState]
+    C --> D[ActionPlan]
+    D --> E[Policy Engine]
+    E --> F{ASK<br/>Human Approval}
+    F -->|Approved| G[Execute]
+    G --> H[Verify]
+    F -->|Rejected / Low confidence| I[Block]
 ```
 
 - Semantic and workflow agents extract and plan; they have no execution authority.
@@ -76,3 +90,9 @@ Best suited for: Awarri (Senior AI Engineer), Vennote (Conversational AI / Agent
 
 - `docs/PAL_ARCHITECTURE.md` — source of truth
 - `docs/PAL_BENCHMARK.md`, `docs/PAL_SECURITY.md`, `CHALLENGE_SUBMISSION.md`
+
+## Visual assets to add
+
+1. Demo GIF of a code-switched payment reminder flowing through the approval UI.
+2. Screenshot of the approval card next to the architecture section.
+3. Social preview image (1280×640).
